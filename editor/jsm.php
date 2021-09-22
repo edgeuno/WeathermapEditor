@@ -135,20 +135,20 @@ switch ($action) {
     if (!$dev) return '';
     require $librenms_base . '/includes/init.php';
     $base_url = isset($config['base_url']) ? $config['base_url'] : '';
-    $node1 = strtolower($dev);
-    $node1_id = \App\Models\Device::where('hostname', 'like', "%$node1%")->value('device_id');
-    if ($node1_id)
-      $host_id = $node1_id;
 
-    /*
- * Query interfaces (if we should)...
- */
+//    $node1 = strtolower($dev);
+//    $node1_id = \App\Models\Device::where('hostname', 'like', "%$node1%")->value('device_id');
+//    if ($node1_id)
+//      $host_id = $node1_id;
+//
+//    /*
+// * Query interfaces (if we should)...
+// */
 
     $list = array();
-    $result = Null;
-    if ($host_id != 0) {
-      $devices = \App\Models\Device::when($host_id > 0, function ($query) use ($host_id) {
-        $query->where('device_id', $host_id);
+    if ($dev != 0) {
+      $devices = \App\Models\Device::when($dev > 0, function ($query) use ($dev) {
+        $query->where('device_id', $dev);
       })
         ->with(['ports' => function ($query) use ($weathermap_config) {
           $query->orderBy($weathermap_config['sort_if_by']);
@@ -156,17 +156,17 @@ switch ($action) {
         ->orderBy('hostname')
         ->get();
     }
-//print 'check';
+////print 'check';
     $i = 0;
-    if (is_null($devices)) {
+    if (!is_null($devices)) {
       foreach ($devices as $device) {
         if (!is_null($device->ports)) {
           foreach ($device->ports as $port) {
             $rra_path = js_escape('./') . $device->hostname . '/port-id';
             $fullpath = $rra_path . $port->port_id . '.rrd:INOCTETS:OUTOCTETS';;
-            $graph_url = $base_url . 'graph.php?height=100&width=512&id=' . portid . '&type=port_bits&legend=no';
-            $info_url = $base_url . 'graphs/type=port_bits/id=' . portid . '/';
-            $list[] = array(1, $device->displayName() . "/$port->ifDescr Desc: $port->ifAlias", $fullpath, $graph_url, $info_url);
+            $graph_url = $base_url . 'graph.php?height=100&width=512&id=' . $port->port_id . '&type=port_bits&legend=no';
+            $info_url = $base_url . 'graphs/type=port_bits/id=' . $port->port_id . '/';
+            $list[] = array($port->port_id, $device->displayName() . "/$port->ifDescr Desc: $port->ifAlias", $fullpath, $graph_url, $info_url);
           }
           $i++;
         }
