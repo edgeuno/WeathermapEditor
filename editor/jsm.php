@@ -114,9 +114,9 @@ switch ($action) {
     require $librenms_base . '/includes/init.php';
 
     if(!is_null($filter) && $filter !== ''){
-      $hosts = \App\Models\Device::where('hostname', 'like', "%$filter%")->get(['device_id AS id', 'hostname AS name', 'ip AS description']);
+      $hosts = \App\Models\Device::where('hostname', 'like', "%$filter%")->get(['device_id AS id', 'hostname AS name', 'ip AS description','hardware AS d1']);
     }else {
-      $hosts = \App\Models\Device::orderBy('hostname')->get(['device_id AS id', 'hostname AS name', 'ip AS description']);
+      $hosts = \App\Models\Device::orderBy('hostname')->get(['device_id AS id', 'hostname AS name', 'ip AS description','hardware AS d1']);
     }
     $list = array();
     if ($hosts->isNotEmpty()) {
@@ -124,7 +124,8 @@ switch ($action) {
         $key = $host['id'];
         $name = $host['name'];
         $graphArray = update_source_step1($key);
-        $list[$key . ''] = array($host['description'], $host['name'], $graphArray[0], $graphArray[1]);
+        $description = $host['description']?$hosts['description']:$hosts['d1'];
+        $list[$key . ''] = array($description, $host['name'], $graphArray[0], $graphArray[1]);
       }
     }
     header('Content-Type: application/json');
