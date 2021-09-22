@@ -82,7 +82,7 @@ switch ($action) {
     $name = htmlentities(trim($_POST['name']));
     $name = str_replace(array('.', '/'), '', $name);
     $data = $_POST['data'];
-    $filename = $wmdir . '/' . $name. '.conf';
+    $filename = $wmdir . '/' . $name . '.conf';
 
     $fp = fopen($filename, 'w');
     fwrite($fp, $data);
@@ -113,7 +113,11 @@ switch ($action) {
     $filter = htmlentities(trim($_GET['filter']));
     require $librenms_base . '/includes/init.php';
 
-    $hosts = \App\Models\Device::orderBy('hostname')->get(['device_id AS id', 'hostname AS name', 'hardware AS description']);
+    if(!is_null($filter) && $filter !== ''){
+      $hosts = \App\Models\Device::where('hostname', 'like', "%$filter%")->get(['device_id AS id', 'hostname AS name', 'ip AS description']);
+    }else {
+      $hosts = \App\Models\Device::orderBy('hostname')->get(['device_id AS id', 'hostname AS name', 'hardware AS description']);
+    }
     $list = array();
     if ($hosts->isNotEmpty()) {
       foreach ($hosts as $host) {
@@ -123,7 +127,6 @@ switch ($action) {
         $list[$key . ''] = array($host['description'], $host['name'], $graphArray[0], $graphArray[1]);
       }
     }
-//    $list['10'] = array('test', 'test');
     header('Content-Type: application/json');
     echo json_encode($list);
 
@@ -135,16 +138,6 @@ switch ($action) {
     if (!$dev) return '';
     require $librenms_base . '/includes/init.php';
     $base_url = isset($config['base_url']) ? $config['base_url'] : '';
-
-//    $node1 = strtolower($dev);
-//    $node1_id = \App\Models\Device::where('hostname', 'like', "%$node1%")->value('device_id');
-//    if ($node1_id)
-//      $host_id = $node1_id;
-//
-//    /*
-// * Query interfaces (if we should)...
-// */
-
     $list = array();
     if ($dev != 0) {
       $devices = \App\Models\Device::when($dev > 0, function ($query) use ($dev) {
@@ -156,7 +149,6 @@ switch ($action) {
         ->orderBy('hostname')
         ->get();
     }
-////print 'check';
     $i = 0;
     if (!is_null($devices)) {
       foreach ($devices as $device) {
@@ -174,7 +166,6 @@ switch ($action) {
       }
     }
 
-//    $list[] = array(1, 'name_cache', 'data_source_path', $base_url . 'graph.php?height=100&width=512&id=1&type=port_bits&legend=no', $base_url . 'graphs/type=port_bits/id=1/');
     header('Content-Type: application/json');
     echo json_encode($list);
 

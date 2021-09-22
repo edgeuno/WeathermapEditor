@@ -1385,7 +1385,7 @@ function filterDevlist() {
       if (listtype == 'host') {
         content = '<ul class="list-group">';
         for (i in data) {
-          content += '<li class="list-group-item"><a href="#" onclick="selectHost(' + i + ',\'' + data[i][2] + '\',\'' + data[i][3] + '\')">' + data[i][0] + '</a><span class="badge badge-secondary float-right">' + data[i][1] + '</span></li>';
+          content += '<li class="list-group-item"><a href="#" onclick="selectHost(' + i + ',\'' + data[i][2] + '\',\'' + data[i][3] + '\')">' + data[i][1] + '</a><span class="badge badge-secondary float-right">' + data[i][0] + '</span></li>';
         }
         content += '</ul>';
         devlist.html(content);
