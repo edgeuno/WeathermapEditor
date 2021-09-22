@@ -1294,7 +1294,7 @@ function enterData(obj) {
     //   return;
     // }
 
-    $(dialog.attr('data-info')).val(data_details );
+    $(dialog.attr('data-info')).val(data_details);
     $(dialog.attr('data-hover')).val(data_graph);
 
     $(dialog.attr('data-caller')).modal('show');
@@ -1493,7 +1493,13 @@ function save() {
 
 function getAttachPointText(side, pos, size, width, height) {
   if (!side) side = 'C';
-
+  if (Array.isArray(side)) {
+    var x = pos[0] - width / 2
+    var y = pos[1] + height / 2
+    var xoffset = Number(side[0])
+    var yoffset = Number(side[1])
+    return [x + xoffset, y + yoffset];
+  }
   switch (side) {
     case 'NW':
       return [pos[0] - size[0] / 2 - width - textPadding, pos[1] - size[1] / 2 - textPadding];
@@ -1526,6 +1532,14 @@ function getAttachPointText(side, pos, size, width, height) {
 
 function getAttachPoint(side, pos, size) {
   if (!side) side = 'C';
+
+  if (Array.isArray(side)) {
+    var x = pos[0] - width / 2
+    var y = pos[1] + height / 2
+    var xoffset = Number(side[0])
+    var yoffset = Number(side[1])
+    return [x + xoffset, y + yoffset];
+  }
 
   switch (side) {
     case 'NW':
@@ -2363,7 +2377,16 @@ function importData(data) {
           break;
 
         case "LABELOFFSET":
-          node.loffset = args.shift();
+          if (args.length > 0) {
+            compassPoints = ['C', 'NE', 'SE', 'NW', 'SW', 'N', 'S', 'E', 'W']
+            if (compassPoints.includes(args[0])) {
+              node.loffset = args.shift();
+            } else {
+              node.loffset = args;
+            }
+          } else {
+            node.loffset = args.shift();
+          }
           break;
 
         case "LABELANGLE":
