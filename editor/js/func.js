@@ -1391,7 +1391,7 @@ function filterDevlist() {
         devlist.html(content);
       } else {
         for (i in data) {
-          content += '<div class="card"><div class="card-header" role="tab" id="heading' + id + '"><a class="mb-0" data-toggle="collapse" href="#collapse' + id + '" aria-expanded="true" aria-controls="collapse' + id + '">' + data[i][0] + '</a><span class="badge badge-secondary float-right">' + data[i][1] + '</span></div>' +
+          content += '<div class="card"><div class="card-header" role="tab" id="heading' + id + '"><a class="mb-0" data-toggle="collapse" href="#collapse' + id + '" aria-expanded="true" aria-controls="collapse' + id + '">' + data[i][1] + '</a><span class="badge badge-secondary float-right">' + data[i][0] + '</span></div>' +
             '<div id="collapse' + id + '" class="collapse" role="tabpanel" aria-labelledby="heading' + id + '" data-parent="#devlist" data-hostid="' + i + '"><div class="card-body">Loading...</div></div></div>';
           id++;
         }

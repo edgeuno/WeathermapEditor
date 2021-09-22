@@ -116,7 +116,7 @@ switch ($action) {
     if(!is_null($filter) && $filter !== ''){
       $hosts = \App\Models\Device::where('hostname', 'like', "%$filter%")->get(['device_id AS id', 'hostname AS name', 'ip AS description']);
     }else {
-      $hosts = \App\Models\Device::orderBy('hostname')->get(['device_id AS id', 'hostname AS name', 'hardware AS description']);
+      $hosts = \App\Models\Device::orderBy('hostname')->get(['device_id AS id', 'hostname AS name', 'ip AS description']);
     }
     $list = array();
     if ($hosts->isNotEmpty()) {
