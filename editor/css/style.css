@@ -1,0 +1,113 @@
+body { padding-top: 70px; }
+@media screen and (max-width: 768px) {
+ body { padding-top: 0px; }
+}
+
+input[type=color] {
+ height: 38px;
+}
+
+.tab-pane {
+ padding: 5px 0;
+}
+
+#mapcanvas {
+ border: 1px dotted #CCCCCC;
+ position: absolute;
+ z-order: 1;
+}
+
+#canvasbg {
+ padding: 1px;
+ z-order: 2;
+}
+
+#pickData .card-header {
+ padding: .25rem 0.75rem;
+}
+
+#pickData .card-header span {
+ margin-top: 3px;
+}
+
+#popup {
+ position: absolute;
+ display: none;
+}
+
+#popup a {
+ text-decoration: none;
+ font-size: 10pt;
+}
+
+#popup ul {
+	background: #fff;
+	list-style: none;
+	position: relative;
+	float: left;
+	margin: 0;
+	padding: 0;
+}
+
+#popup ul a {
+	display: block;
+	color: #333;
+	text-decoration: none;
+	line-height: 32px;
+	padding: 0 15px;
+}
+
+#popup ul li {
+	position: relative;
+	margin: 0;
+	padding: 0;
+	border: 1px solid #eee;
+	min-width: 130px;
+}
+
+#popup ul li:hover {
+	background: #f0f0f0;
+}
+
+#popup ul ul,
+#popup ul ul ul {
+	display: none;
+	position: absolute;
+	top: 0;
+	left: 100%;
+	padding: 0;
+}
+
+#popup ul ul li {
+	float: none;
+}
+
+#popup ul li:hover > ul {
+	display: block;
+}
+
+.templated .btn-group {
+ visibility: hidden;
+}
+
+.templated > .list-group-item:hover .btn-group {
+ visibility: visible;
+}
+
+.navbar-brand {
+ animation-name: towhite;
+ animation-duration: 1s;
+}
+
+@keyframes towhite {
+ from {color: black;}
+ to   {color: white;}
+}
+
+#scaleRows {
+ margin-bottom: 1rem;
+}
+
+#scaleRows .row {
+ margin-top: 3px;
+}

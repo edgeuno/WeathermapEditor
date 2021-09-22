@@ -1,0 +1,2 @@
+<?php
+include("editor.html");

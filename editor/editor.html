@@ -1,0 +1,1078 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="author" content="13hakta">
+	<title>WMap Editor :: Weathermap</title>
+	<link rel="icon" href="favicon.ico">
+	<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css" />
+	<link rel="stylesheet" type="text/css" href="css/style.css" data-in />
+</head>
+
+<body>
+	<nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+		<a class="navbar-brand" href="#">WMap Editor</a>
+		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarDefault" aria-controls="navbarDefault" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+
+		<div class="collapse navbar-collapse" id="navbarDefault">
+			<ul class="navbar-nav mr-auto">
+				<li class="nav-item dropdown">
+					<a class="nav-link dropdown-toggle" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Map</a>
+					<div class="dropdown-menu" aria-labelledby="dropdown01">
+						<a class="dropdown-item" href="#" onclick="newMap()">New</a>
+						<div class="dropdown-divider"></div>
+						<a class="dropdown-item" href="#" onclick="selectMap()">Load </a>
+						<a class="dropdown-item" href="#" onclick="save()">Save</a>
+						<div class="dropdown-divider"></div>
+						<a class="dropdown-item" href="#" data-toggle="modal" data-target="#importDialog">Import</a>
+						<a class="dropdown-item" href="#" onclick="convertMap()">Export</a>
+					</div>
+				</li>
+				<li class="nav-item dropdown">
+					<a class="nav-link dropdown-toggle" id="dropdown03" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Objects</a>
+					<div class="dropdown-menu" aria-labelledby="dropdown03">
+						<a class="dropdown-item" href="#" onclick="mapTemplates()">Templates</a>
+						<a class="dropdown-item" href="#" onclick="mapScales()">Scales</a>
+						<a class="dropdown-item" href="#" onclick="mapFonts()">Fonts</a>
+					</div>
+				</li>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="#" onclick="showMapConfig()">Properties</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="#" onclick="showOptions()">Options</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="#" data-toggle="modal" data-target="#aboutDialog">About</a>
+				</li>
+			</ul>
+			<form class="form-inline my-2 my-lg-0">
+				<input class="form-control mr-sm-2" type="text" placeholder="Name" aria-label="Name" id="mapname">
+			</form>
+		</div>
+	</nav>
+
+	<main class="container-fluid">
+		<canvas id="mapcanvas">This text is displayed if your browser does not support HTML5 Canvas.</canvas>
+		<canvas id="canvasbg" />
+	</main>
+
+	<div class="alert alert-danger invisible" role="alert" id="message"></div>
+
+	<div id="popup">
+		<ul>
+			<li class="item-add">
+				<a href="#">Add</a>
+				<ul>
+					<li><a href="#" onclick="menuAdd()">Add node</a></li>
+					<li><a href="#" onclick="menuAddTitle()">Add title</a></li>
+					<li><a href="#">Add time</a>
+						<ul>
+							<li><a href="#" onclick="menuAddTime(0)">Generated</a></li>
+							<li><a href="#" onclick="menuAddTime(1)">Minimumin</a></li>
+							<li><a href="#" onclick="menuAddTime(2)">Maximum</a></li>
+						</ul>
+					</li>
+				</ul>
+			</li>
+			<li class="item-link"><a href="#" onclick="menuLink(0)">Link</a></li>
+			<li class="item-link"><a href="#" onclick="menuLink(1)">Link curve</a></li>
+			<li class="item-unlink"><a href="#" onclick="menuunLink()">Unlink nodes</a></li>
+			<li class="item-edit"><a href="#" onclick="menuEdit()">Edit</a></li>
+			<li class="item-clone"><a href="#" onclick="menuClone()">Clone</a></li>
+			<li class="item-align">
+				<a href="#">Align</a>
+				<ul>
+					<li><a href="#" onclick="align(0)">To left</a></li>
+					<li><a href="#" onclick="align(1)">To top</a></li>
+					<li><a href="#" onclick="align_space(0)">Space eq. horiz</a></li>
+					<li><a href="#" onclick="align_space(1)">Space eq. vert</a></li>
+					<li><a href="#" onclick="align_star(1)">Star children</a></li>
+				</ul>
+			</li>
+			<li class="item-delete"><a href="#" class="text-danger" onclick="menuDelete()">Delete</a></li>
+		</ul>
+	</div>
+
+	<div class="modal" tabindex="-1" role="dialog" id="editorNode">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Edit node</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<ul class="nav nav-tabs" id="tabsn" role="tablist">
+						<li class="nav-item">
+							<a class="nav-link active" id="tabn1" data-toggle="tab" href="#tabsn1" role="tab" aria-controls="tabsn1" aria-selected="true">Node</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" id="tabn2" data-toggle="tab" href="#tabsn2" role="tab" aria-controls="tabsn2" aria-selected="false">Style</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" id="tabn3" data-toggle="tab" href="#tabsn3" role="tab" aria-controls="tabsn3" aria-selected="false">Links</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" id="tabn4" data-toggle="tab" href="#tabsn4" role="tab" aria-controls="tabsn4" aria-selected="false">Extended</a>
+						</li>
+					</ul>
+					<div class="tab-content" id="tabsncontent">
+						<div class="tab-pane fade show active" id="tabsn1" role="tabpanel" aria-labelledby="tabsn1">
+							<div class="row">
+								<div class="col">
+									<div class="form-group">
+										<label for="odtitle">Title</label>
+										<input type="text" class="form-control form-control-sm" id="odtitle" required>
+									</div>
+								</div>
+								<div class="col">
+									<div class="form-group">
+										<label for="odname">Name</label>
+										<input type="text" class="form-control form-control-sm" id="odname" required>
+									</div>
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="odtemplate">Template</label>
+								<select class="form-control form-control-sm" id="odtemplate"></select>
+							</div>
+							<div class="row">
+								<div class="col">
+									<div class="form-group">
+										<label for="odmax">Max</label>
+										<input type="text" class="form-control form-control-sm" id="odmax">
+									</div>
+								</div>
+								<div class="col">
+									<div class="form-group">
+										<label for="odcacti">CACTI id</label>
+											<div class="input-group">
+												<input type="text" class="form-control form-control-sm" id="odcacti" pattern="[0-9]+">
+												<span class="input-group-btn">
+     <button class="btn btn-sm btn-secondary" type="button" id="pickNode" onclick="pickData('cacti')">Pick</button>
+    </span>
+											</div>
+									</div>
+								</div>
+							</div>
+<!--							<div class="form-group">-->
+<!--								<label for="oddata">Data source</label>-->
+<!--								<div class="input-group">-->
+<!--									<input type="text" class="form-control form-control-sm" id="oddata">-->
+<!--									<span class="input-group-btn">-->
+<!--     <button class="btn btn-sm btn-secondary" type="button" id="pickNodeData" onclick="pickData('node')">Pick</button>-->
+<!--    </span>-->
+<!--								</div>-->
+<!--							</div>-->
+							<div class="row">
+								<div class="col">
+									<div class="form-group">
+										<label for="odinfo">Info URL</label>
+										<input type="text" class="form-control form-control-sm" id="odinfo">
+									</div>
+								</div>
+								<div class="col">
+									<div class="form-group">
+										<label for="odhover">Hover URL</label>
+										<input type="text" class="form-control form-control-sm" id="odhover">
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="tab-pane fade" id="tabsn2" role="tabpanel" aria-labelledby="tabsn2">
+							<div class="form-group">
+								<label for="odlabeloff">Label offset</label>
+								<select class="form-control form-control-sm" id="odlabeloff">
+									<option value="">[default]</option>
+									<option value="NW">North west</option>
+									<option value="N">North</option>
+									<option value="NE">North east</option>
+									<option value="W">West</option>
+									<option value="C">Center</option>
+									<option value="E">East</option>
+									<option value="SW">South west</option>
+									<option value="S">South</option>
+									<option value="SE">South east</option>
+								</select>
+							</div>
+							<div class="form-group">
+								<label for="odlabfont">Label font</label>
+								<select class="form-control form-control-sm" id="odlabfont"></select>
+							</div>
+							<div class="form-group">
+								<label for="odimage">Image</label>
+								<input type="text" class="form-control form-control-sm" id="odimage">
+							</div>
+							<div class="form-group">
+								<label for="odImages">Images list</label>
+								<select class="form-control form-control-sm" id="odImages"></select>
+							</div>
+							<div class="row">
+								<div class="col">
+									<div class="form-group">
+										<label for="odcolor">Color</label>
+										<input type="text" class="form-control form-control-sm" id="odcolor" pattern="#[0-9A-Fa-f]{6}">
+									</div>
+								</div>
+								<div class="col">
+									<div class="form-group">
+										<label for="odoutcolor">Outline color</label>
+										<input type="text" class="form-control form-control-sm" id="odoutcolor" pattern="#[0-9A-Fa-f]{6}">
+									</div>
+								</div>
+								<div class="col">
+									<div class="form-group">
+										<label for="odbcolor">Back color</label>
+										<input type="text" class="form-control form-control-sm" id="odbcolor" pattern="#[0-9A-Fa-f]{6}">
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col">
+									<div class="form-group">
+										<label for="odovercap">Overlib caption</label>
+										<input type="text" class="form-control form-control-sm" id="odovercap">
+									</div>
+								</div>
+								<div class="col">
+									<div class="form-group">
+										<label for="odoverwidth">Overlib width</label>
+										<input type="number" class="form-control form-control-sm" id="odoverwidth" min="1">
+									</div>
+								</div>
+								<div class="col">
+									<div class="form-group">
+										<label for="odoverheight">Overlib height</label>
+										<input type="number" class="form-control form-control-sm" id="odoverheight" min="1">
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="tab-pane fade" id="tabsn3" role="tabpanel" aria-labelledby="tabsn3">
+							<div class="form-group">
+								<select class="form-control form-control-sm" multiple id="odLinks"></select>
+							</div>
+
+							<button type="button" class="btn btn-primary btn-sm" id="editLink">Edit</button>
+							<button type="button" class="btn btn-danger btn-sm" id="deleteLink">Delete</button>
+						</div>
+						<div class="tab-pane fade" id="tabsn4" role="tabpanel" aria-labelledby="tabsn4">
+							<div class="form-group">
+								<label for="odnotes">Notes</label>
+								<input type="text" class="form-control form-control-sm" id="odnotes">
+							</div>
+							<textarea id="nodeext" rows="10" style="width: 100%"></textarea>
+						</div>
+					</div>
+
+					<input type="hidden" id="odIndex">
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" id="applyChanges">Save</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal" tabindex="-1" role="dialog" id="editorTime">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Edit time</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<div class="form-group">
+						<label for="otformat">Text format</label>
+						<input type="text" class="form-control form-control-sm" id="otformat">
+					</div>
+					<input type="hidden" id="otIndex">
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" id="applyTime">Save</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal" tabindex="-1" role="dialog" id="mapList">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Map list</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<div class="form-group">
+						<select class="form-control" multiple id="maps"></select>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-danger" id="deleteMap">Delete</button>
+					<button type="button" class="btn btn-primary" id="selectMap">Load</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal" tabindex="-1" role="dialog" id="mapConfig">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Map properties</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<ul class="nav nav-tabs" id="tabsm" role="tablist">
+						<li class="nav-item">
+							<a class="nav-link active" id="tabm1" data-toggle="tab" href="#tabsm1" role="tab" aria-controls="tabsm1" aria-selected="true">Properties</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" id="tabm2" data-toggle="tab" href="#tabsm2" role="tab" aria-controls="tabsm2" aria-selected="false">Style</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" id="tabm3" data-toggle="tab" href="#tabsm3" role="tab" aria-controls="tabsm3" aria-selected="false">Extended</a>
+						</li>
+					</ul>
+					<div class="tab-content" id="tabs2content">
+						<div class="tab-pane fade show active" id="tabsm1" role="tabpanel" aria-labelledby="tabsm1">
+							<div class="form-group">
+								<label for="mpname">Title</label>
+								<input type="text" class="form-control form-control-sm" id="mpname" required>
+							</div>
+							<div class="row">
+								<div class="col">
+									<div class="form-group">
+										<label for="mpwidth">Width</label>
+										<input type="number" class="form-control form-control-sm" id="mpwidth" required>
+									</div>
+								</div>
+								<div class="col">
+									<div class="form-group">
+										<label for="mpheight">Height</label>
+										<input type="number" class="form-control form-control-sm" id="mpheight" required>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col">
+									<div class="form-group">
+										<label for="mpimage">Output image filename</label>
+										<input type="text" class="form-control form-control-sm" id="mpimage">
+									</div>
+								</div>
+								<div class="col">
+									<div class="form-group">
+										<label for="mphtml">Output HTML filename</label>
+										<input type="text" class="form-control form-control-sm" id="mphtml">
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="tab-pane fade" id="tabsm2" role="tabpanel" aria-labelledby="tabsm2">
+							<div class="form-group">
+								<label for="mpcss">Stylesheet</label>
+								<input type="text" class="form-control form-control-sm" id="mpcss">
+							</div>
+							<div class="row">
+								<div class="col">
+									<div class="form-group">
+										<label for="mpcolor">Background color</label>
+										<input type="text" class="form-control form-control-sm" id="mpcolor" pattern="#[0-9A-Fa-f]{6}">
+									</div>
+								</div>
+								<div class="col">
+									<div class="form-group">
+										<label for="mpbackground">Background image</label>
+										<input type="text" class="form-control form-control-sm" id="mpbackground">
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col">
+									<div class="form-group">
+										<label for="mpstyle">HTML style</label>
+										<select class="form-control form-control-sm" id="mpstyle">
+											<option value="1">Overlib</option>
+											<option value="2">Static HTML</option>
+										</select>
+									</div>
+								</div>
+								<div class="col">
+									<div class="form-group">
+										<label for="mplinklabels">Link labels</label>
+										<select class="form-control form-control-sm" id="mplinklabels">
+											<option value="">Percentage</option>
+											<option value="1">Bits/sec</option>
+											<option value="2">None</option>
+										</select>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col">
+									<div class="form-group">
+										<label for="mptcolor">Title</label>
+										<input type="text" class="form-control form-control-sm" id="mptcolor" pattern="#[0-9A-Fa-f]{6}">
+									</div>
+								</div>
+								<div class="col">
+									<div class="form-group">
+										<label for="mptmcolor">Time</label>
+										<input type="text" class="form-control form-control-sm" id="mptmcolor" pattern="#[0-9A-Fa-f]{6}">
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col">
+									<div class="form-group">
+										<label for="mpkcolor">Key text</label>
+										<input type="text" class="form-control form-control-sm" id="mpkcolor" pattern="#[0-9A-Fa-f]{6}">
+									</div>
+								</div>
+								<div class="col">
+									<div class="form-group">
+										<label for="mpkocolor">Key outline</label>
+										<input type="text" class="form-control form-control-sm" id="mpkocolor" pattern="#[0-9A-Fa-f]{6}">
+									</div>
+								</div>
+								<div class="col">
+									<div class="form-group">
+										<label for="mpkbcolor">Key background</label>
+										<input type="text" class="form-control form-control-sm" id="mpkbcolor" pattern="#[0-9A-Fa-f]{6}">
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col">
+									<div class="form-group">
+										<label for="mpsfont">Title font</label>
+										<select class="form-control form-control-sm" id="mptfont"></select>
+									</div>
+								</div>
+								<div class="col">
+									<div class="form-group">
+										<label for="mpsfont">Legend font</label>
+										<select class="form-control form-control-sm" id="mpsfont"></select>
+									</div>
+								</div>
+								<div class="col">
+									<div class="form-group">
+										<label for="mptmfont">Time font</label>
+										<select class="form-control form-control-sm" id="mptmfont"></select>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="tab-pane fade" id="tabsm3" role="tabpanel" aria-labelledby="tabsm3">
+							<textarea id="mapext" rows="10" style="width: 100%"></textarea>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" id="applyMap">Apply</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal" tabindex="-1" role="dialog" id="mapFonts">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">User fonts</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<div class="form-group">
+						<select class="form-control" multiple id="fonts"></select>
+					</div>
+
+					<div class="row">
+						<div class="col">
+							<div class="form-group">
+								<label for="mfid">ID</label>
+								<input type="number" class="form-control" id="mfid" size="3" min="100">
+							</div>
+						</div>
+						<div class="col">
+							<div class="form-group">
+								<label for="mfface">Face</label>
+								<div class="input-group">
+									<input type="text" class="form-control" id="mfface">
+									<span class="input-group-btn">
+      <button class="btn btn-secondary" type="button" id="addFont">Add</button>
+     </span>
+								</div>
+							</div>
+						</div>
+					</div>
+
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-danger" id="deleteFont">Delete</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal" tabindex="-1" role="dialog" id="editorLink">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Link <span id="linktitle"></span></h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<ul class="nav nav-tabs" id="tabsl" role="tablist">
+						<li class="nav-item">
+							<a class="nav-link active" id="tabl1" data-toggle="tab" href="#tabsl1" role="tab" aria-controls="tabsl1" aria-selected="true">Node</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" id="tabl2" data-toggle="tab" href="#tabsl2" role="tab" aria-controls="tabsl2" aria-selected="false">Style</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" id="tabl3" data-toggle="tab" href="#tabsl3" role="tab" aria-controls="tabsl3" aria-selected="false">VIA</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" id="tabl4" data-toggle="tab" href="#tabsl4" role="tab" aria-controls="tabsl4" aria-selected="false">Extended</a>
+						</li>
+					</ul>
+					<div class="tab-content" id="tabslcontent">
+						<div class="tab-pane fade show active" id="tabsl1" role="tabpanel" aria-labelledby="tabsl1">
+							<div class="form-group">
+								<label for="olid">ID</label>
+								<input type="text" class="form-control form-control-sm" id="olid" required>
+							</div>
+							<div class="row">
+								<div class="col">
+									<div class="form-group">
+										<label for="olbwidth">Bandwidth</label>
+										<input type="text" class="form-control form-control-sm" id="olbwidth" pattern="([0-9]+[KMGT]?)|([0-9]+[KMGT]? [0-9]+[KMGT]?)">
+									</div>
+								</div>
+								<div class="col">
+									<div class="form-group">
+										<label for="olduplex">Duplex</label>
+										<select class="form-control form-control-sm" id="olduplex">
+											<option value="">[default]</option>
+											<option value="2">Full</option>
+											<option value="1">Half</option>
+										</select>
+									</div>
+								</div>
+								<div class="col">
+									<div class="form-group">
+										<label for="olwidth">Width</label>
+										<input type="number" class="form-control form-control-sm" id="olwidth">
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col">
+									<div class="form-group">
+										<label for="olscale">Scale</label>
+										<select class="form-control form-control-sm" id="olscale"></select>
+									</div>
+								</div>
+								<div class="col">
+									<div class="form-group">
+										<label for="olscalet">Scale calc</label>
+										<select class="form-control form-control-sm" id="olscalet">
+											<option value="">[default]</option>
+											<option value="0">percent</option>
+											<option value="1">absolute</option>
+										</select>
+									</div>
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="oltemplate">Template</label>
+								<select class="form-control form-control-sm" id="oltemplate"></select>
+							</div>
+							<div class="form-group">
+								<label for="oldata">Data source</label>
+								<div class="input-group">
+									<input type="text" class="form-control form-control-sm" id="oldata">
+									<span class="input-group-btn">
+     <button class="btn btn-sm btn-secondary" type="button" id="pickLinkData" onclick="pickData('link')">Pick</button>
+    </span>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col">
+									<div class="form-group">
+										<label for="olinfo">Info URL</label>
+										<input type="text" class="form-control form-control-sm" id="olinfo">
+									</div>
+								</div>
+								<div class="col">
+									<div class="form-group">
+										<label for="olhover">Hover URL</label>
+										<input type="text" class="form-control form-control-sm" id="olhover">
+									</div>
+								</div>
+							</div>
+				</div>
+				<div class="tab-pane fade" id="tabsl2" role="tabpanel" aria-labelledby="tabsl2">
+					<div class="row">
+						<div class="col">
+							<div class="form-group">
+								<label for="olarrowstyle">Arrow style</label>
+								<input type="text" class="form-control form-control-sm" id="olarrowstyle" pattern="(compact)|(classic)|([0-9]+ [0-9]+)">
+							</div>
+						</div>
+						<div class="col">
+							<div class="form-group">
+								<label for="ollinkstyle">Link style</label>
+								<select class="form-control form-control-sm" id="ollinkstyle">
+									<option value="">[default]</option>
+									<option value="1">One way</option>
+									<option value="2">Two way</option>
+								</select>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col">
+							<div class="form-group">
+								<label for="olbwlabel">BW label</label>
+								<input type="text" class="form-control form-control-sm" id="olbwlabel" pattern="#[0-9A-Fa-f]{6}">
+							</div>
+						</div>
+						<div class="col">
+							<div class="form-group">
+								<label for="oloutcolor">Outline</label>
+								<input type="text" class="form-control form-control-sm" id="oloutcolor" pattern="#[0-9A-Fa-f]{6}">
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col">
+							<div class="form-group">
+								<label for="olbandoutcolor">BW outline</label>
+								<input type="text" class="form-control form-control-sm" id="olbandoutcolor" pattern="#[0-9A-Fa-f]{6}">
+							</div>
+						</div>
+						<div class="col">
+							<div class="form-group">
+								<label for="olbandboxcolor">BW box</label>
+								<input type="text" class="form-control form-control-sm" id="olbandboxcolor" pattern="#[0-9A-Fa-f]{6}">
+							</div>
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="olbwlabelfont">BW font</label>
+						<select class="form-control form-control-sm" id="olbwlabelfont"></select>
+					</div>
+					<div class="row">
+						<div class="col">
+							<div class="form-group">
+								<label for="olnode1c">Node1 connect</label>
+								<select class="form-control form-control-sm" id="olnode1c">
+									<option value="">[default]</option>
+									<option value="NW">North west</option>
+									<option value="N">North</option>
+									<option value="NE">North east</option>
+									<option value="W">West</option>
+									<option value="C">Center</option>
+									<option value="E">East</option>
+									<option value="SW">South west</option>
+									<option value="S">South</option>
+									<option value="SE">South east</option>
+								</select>
+							</div>
+						</div>
+						<div class="col">
+							<div class="form-group">
+								<label for="olnode2c">Node2 connect</label>
+								<select class="form-control form-control-sm" id="olnode2c">
+									<option value="">[default]</option>
+									<option value="NW">North west</option>
+									<option value="N">North</option>
+									<option value="NE">North east</option>
+									<option value="W">West</option>
+									<option value="C">Center</option>
+									<option value="E">East</option>
+									<option value="SW">South west</option>
+									<option value="S">South</option>
+									<option value="SE">South east</option>
+								</select>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col">
+							<div class="form-group">
+								<label for="olovercap">Overlib caption</label>
+								<input type="text" class="form-control form-control-sm" id="olovercap">
+							</div>
+						</div>
+						<div class="col">
+							<div class="form-group">
+								<label for="oloverwidth">Overlib width</label>
+								<input type="number" class="form-control form-control-sm" id="oloverwidth" min="1">
+							</div>
+						</div>
+						<div class="col">
+							<div class="form-group">
+								<label for="oloverheight">Overlib height</label>
+								<input type="number" class="form-control form-control-sm" id="oloverheight" min="1">
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="tab-pane fade" id="tabsl3" role="tabpanel" aria-labelledby="tabsl3">
+					<div class="form-group">
+						<label for="olviastyle">VIA style</label>
+						<select class="form-control form-control-sm" id="olviastyle">
+							<option value="">[default]</option>
+							<option value="1">angled</option>
+							<option value="2">curved</option>
+						</select>
+					</div>
+					<button type="button" class="btn btn-primary btn-sm" id="addVIA">Add point</button>
+					<button type="button" class="btn btn-danger btn-sm" id="clearVIA">Clear</button>
+				</div>
+				<div class="tab-pane fade" id="tabsl4" role="tabpanel" aria-labelledby="tabsl4">
+					<div class="form-group">
+						<label for="olnotes">Notes</label>
+						<input type="text" class="form-control form-control-sm" id="olnotes">
+					</div>
+					<div class="form-group">
+						<label for="olcomment">Comments</label>
+						<input type="text" class="form-control form-control-sm" id="olcomment">
+					</div>
+					<textarea id="linkext" rows="10" style="width: 100%"></textarea>
+				</div>
+					</div>
+					<input type="hidden" id="olIndex">
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-danger" id="deleteLink2">Delete</button>
+					<button type="button" class="btn btn-primary" id="applyLink">Save</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal" tabindex="-1" role="dialog" id="editScale">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Scale</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<div class="row">
+						<div class="col">
+							<div class="form-group">
+								<label for="ostitle">Title</label>
+								<input type="text" class="form-control form-control-sm" id="ostitle">
+							</div>
+						</div>
+						<div class="col">
+							<div class="form-group">
+								<label for="osid">ID</label>
+								<input type="text" class="form-control form-control-sm" id="osid">
+							</div>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="col">
+							<div class="form-check">
+								<label for="osshow" class="form-check-label">
+									<input type="checkbox" class="form-check-input" id="osshow"> Show on map
+								</label>
+							</div>
+						</div>
+						<div class="col">
+							<div class="form-check">
+								<label for="oshidezero" class="form-check-label">
+									<input type="checkbox" class="form-check-input" id="oshidezero"> Hide zero
+								</label>
+							</div>
+						</div>
+						<div class="col">
+							<div class="form-check">
+								<label for="oshideperc" class="form-check-label">
+									<input type="checkbox" class="form-check-input" id="oshideperc"> Hide percent
+								</label>
+							</div>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="col">Min</div>
+						<div class="col">Max</div>
+						<div class="col">Color</div>
+					</div>
+
+					<div id="scaleRows"></div>
+
+					<button type="button" class="btn btn-sm btn-primary" id="addScaleRow">Add row</button>
+
+					<input type="hidden" id="osIndex">
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" id="applyScale">Save</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal" tabindex="-1" role="dialog" id="scaleDialog">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Scales</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<ul id="scalelist" class="templated"></ul>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" id="addScale">Add</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal" tabindex="-1" role="dialog" id="pickDialog">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Pick graph</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<div class="form-group">
+						<label for="opfilter">Filter</label>
+						<input type="text" class="form-control form-control-sm" id="opfilter">
+					</div>
+					<div class="form-check">
+						<label for="opinfo" class="form-check-label">
+							<input type="checkbox" class="form-check-input" id="opinfo" checked> Set info & hover
+						</label>
+					</div>
+					<div id="devlist" role="tablist">
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal" tabindex="-1" role="dialog" id="optionsDialog">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Options</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+<!--					<div class="form-group">-->
+<!--						<label for="opcacti">Librenms web url</label>-->
+<!--						<input type="text" class="form-control form-control-sm" id="opcacti" disabled>-->
+<!--					</div>-->
+<!--					<div class="form-group">-->
+<!--						<label for="oprra">RRA path</label>-->
+<!--						<input type="text" class="form-control form-control-sm" id="oprra">-->
+<!--					</div>-->
+					<div class="form-group">
+						<label for="opimgs">WeatherMap image url</label>
+						<input type="text" class="form-control form-control-sm" id="opimgs">
+					</div>
+
+					<div class="row">
+						<div class="col">
+							<div class="form-check">
+								<label for="opgrid" class="form-check-label">
+									<input type="checkbox" class="form-check-input" id="opgrid"> Show grid
+								</label>
+							</div>
+						</div>
+						<div class="col">
+							<div class="form-check">
+								<label class="form-check-label" for="opgsnap">
+									<input type="checkbox" class="form-check-input" id="opgsnap"> Snap to grid
+								</label>
+							</div>
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label for="opgstep">Grid step</label>
+						<input type="number" min="2" class="form-control form-control-sm" id="opgstep">
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" id="applyOptions">Save</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal" tabindex="-1" role="dialog" id="importDialog">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Map source</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<textarea id="mapinput" cols="80" rows="20" style="width: 100%" required></textarea>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" id="importMap">Import</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal" tabindex="-1" role="dialog" id="templateDialog">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Templates</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<ul class="nav nav-tabs" id="tabt" role="tablist">
+						<li class="nav-item">
+							<a class="nav-link active" id="tabtn" data-toggle="tab" href="#tabtnc" role="tab" aria-controls="tabtnc" aria-selected="true">Nodes</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" id="tabtl" data-toggle="tab" href="#tabtlc" role="tab" aria-controls="tabtlc" aria-selected="false">Links</a>
+						</li>
+					</ul>
+					<div class="tab-content" id="tabstcontent">
+						<div class="tab-pane fade show active" id="tabtnc" role="tabpanel" aria-labelledby="tabtnc">
+							<ul class="list-group templated" id="tplNodes"></ul>
+						</div>
+						<div class="tab-pane fade" id="tabtlc" role="tabpanel" aria-labelledby="tabtlc">
+							<ul class="list-group templated" id="tplLinks"></ul>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" id="addTemplate">Add</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal" tabindex="-1" role="dialog" id="exportDialog">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Map output</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<textarea id="mapinfo" cols="80" rows="20" style="width: 100%"></textarea>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal" tabindex="-1" role="dialog" id="aboutDialog">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">About</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+<h2>WMap Editor v1.0</h2>
+<p>GUI tool to edit/transcode <a href="https://network-weathermap.com/" target="_blank">WeatherMap</a> configs.</p>
+<p>Author <a href="http://13hakta.ru">Vitaly Chekryzhev (13hakta)</a>, 2017.</p>
+<p>Feel free to donate: <a target="_blank" href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=13hakta@gmail.com&item_name=Thanks+for+Editor&item_number=WMap+Editor&amount=20%2e00&currency_code=USD">PayPal</a>,
+<a target="_blank" href="https://money.yandex.ru/to/4100137686702/500">Yandex</a>.</p>
+
+<p><a data-toggle="collapse" href="#supports" aria-expanded="false" aria-controls="supports"><strong>Supports / features</strong></a></p>
+<ul id="supports" class="collapse">
+ <li>Easy to drag&drop nodes movement</li>
+ <li>Templated nodes and links</li>
+ <li>Background color and image</li>
+ <li>Convert from and to WeatherMap format</li>
+ <li>Load and save to native WeatherMap configs</li>
+ <li>Editor for nodes, links, scales, fonts, templates, map properties</li>
+ <li>Links with VIA, multiple VIA and curved/angled styles</li>
+ <li>Gently handles unsupported tags (excepting templated objects)</li>
+ <li>All types of time objects: min/max/generated time</li>
+ <li>Display title</li>
+ <li>Grid contrasting to background</li>
+ <li>Snap to grid</li>
+ <li>Scales are drawn in classic style</li>
+ <li>Optionally can decrease redraw intense on movement</li>
+ <li>SET <i>hidezero</i> and <i>hidepercent</i> for scales</li>
+</ul>
+<p><a data-toggle="collapse" href="#unsupports" aria-expanded="false" aria-controls="supports"><strong>Unsupports</strong></a></p>
+<ul id="unsupports" class="collapse">
+ <li>Links are displayed as lines without bandwidth labels</li>
+ <li>Text only in predefined mono fonts</li>
+ <li>Scale styles (only classic), tagged</li>
+ <li>Node tags: LABELANGLE SET USEICONSCALE ZORDER</li>
+ <li>Link tags: BWLABELPOS BWSTYLE COMMENTFONT COMMENTPOS COMMENTSTYLE INBWFORMAT INCOMMENT ININFOURL INNOTES INOVERLIBCAPTION INOVERLIBGRAPH OUTBWFORMAT OUTCOMMENT OUTINFOURL OUTNOTES OUTOVERLIBCAPTION OUTOVERLIBGRAPH SET SPLITPOS ZORDER</li>
+ <li>Global tags: IMAGEURI INCLUDE KEYSTYLE KILO SET</li>
+ <li>IDs are not checked for interference</li>
+ <li>Comments are not preserved on converting</li>
+ <li>No undo, sorry. ;)</li>
+</ul>
+<p><a data-toggle="collapse" href="#uses" aria-expanded="false" aria-controls="uses"><strong>Uses</strong></a></p>
+<ul id="uses" class="collapse">
+ <li>JQuery v3</li>
+ <li>Bootstrap v4.1.1</li>
+ <li>Popper</li>
+</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<footer class="container-fluid">
+		<a class="float-right" href="https://13hakta.ru">13hakta &copy;</a>
+	</footer>
+
+	<script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
+	<script type="text/javascript" src="js/popper.min.js"></script>
+	<script type="text/javascript" src="js/bootstrap.min.js"></script>
+
+	<script type="text/javascript" src="js/config.js"></script>
+	<script type="text/javascript" src="js/func.js" data-in></script>
+</body>
+
+</html>
