@@ -174,7 +174,7 @@ switch ($action) {
       }
     }
 
-    $list[] = array(1, 'name_cache', 'data_source_path', $base_url . 'graph.php?height=100&width=512&id=1&type=port_bits&legend=no', $base_url . 'graphs/type=port_bits/id=1/');
+//    $list[] = array(1, 'name_cache', 'data_source_path', $base_url . 'graph.php?height=100&width=512&id=1&type=port_bits&legend=no', $base_url . 'graphs/type=port_bits/id=1/');
     header('Content-Type: application/json');
     echo json_encode($list);
 
