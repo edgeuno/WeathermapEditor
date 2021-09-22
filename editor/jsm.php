@@ -113,7 +113,7 @@ switch ($action) {
     $filter = htmlentities(trim($_GET['filter']));
     require $librenms_base . '/includes/init.php';
 
-    $hosts = \App\Models\Device::orderBy('hostname')->get(['device_id AS id', 'hostname AS name', 'purpose AS description']);
+    $hosts = \App\Models\Device::orderBy('hostname')->get(['device_id AS id', 'hostname AS name', 'hardware AS description']);
     $list = array();
     if ($hosts->isNotEmpty()) {
       foreach ($hosts as $host) {
@@ -123,7 +123,7 @@ switch ($action) {
         $list[$key . ''] = array($host['description'], $host['name'], $graphArray[0], $graphArray[1]);
       }
     }
-    $list['10'] = array('test', 'test');
+//    $list['10'] = array('test', 'test');
     header('Content-Type: application/json');
     echo json_encode($list);
 
