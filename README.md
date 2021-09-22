@@ -4,11 +4,11 @@ Librenms weather map editor is an adaptation for librenms of the plugin develop 
 weather maps
 for installing use the following via ssh:
 ````
-  $ git clone ssh://git@gitlab.edgeuno.net:2288/developers/librenms-weathermap-editor.git#subdirectory=WeathermapEditor
+  $ git clone ssh://git@gitlab.edgeuno.net:2288/developers/WeathermapEditor.git
 ````
 Or
 ````
-$ git clone https://gitlab.edgeuno.net/developers/librenms-weathermap-editor.git#subdirectory=WeathermapEditor
+$ git clone https://gitlab.edgeuno.net/developers/WeathermapEditor.git
 ````
 ----
 
