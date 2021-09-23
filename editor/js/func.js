@@ -1526,7 +1526,7 @@ function contextMenu(e) {
     if (nodes.length == 2) {
       // Check if nodes are linked
       if (hasLink(mapObj.objects[nodes[0]].id, mapObj.objects[nodes[1]].id)) {
-        popup.find('.item-link').hide();
+        popup.find('.item-link').show();
         popup.find('.item-unlink').show();
       } else {
         popup.find('.item-link').show();
