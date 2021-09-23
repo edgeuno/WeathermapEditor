@@ -839,8 +839,24 @@ function menuEdit() {
       $('#odcolor').val(obj.color);
       $('#odoutcolor').val(obj.outcolor);
       $('#odbcolor').val(obj.lbg);
+      if (Array.isArray(obj.loffset)) {
+        $('#odlabeloff').val('custom');
+        $('#odlabeloffcustom').show();
+        $('#odlabeloffx').val(obj.loffset[0]);
+        $('#odlabeloffy').val(obj.loffset[1]);
+      } else {
+        $('#odlabeloffcustom').hide();
+        $('#odlabeloff').val(obj.loffset);
+      }
+      $('#odlabeloff').change(function () {
+        var val = $('#odlabeloff').val();
+        if (val === 'custom') {
+          $('#odlabeloffcustom').show();
+        } else {
+          $('#odlabeloffcustom').hide();
+        }
 
-      $('#odlabeloff').val(obj.loffset);
+      })
       $('#odnotes').val(obj.notes);
       $('#odmax').val(obj.max);
 
@@ -993,7 +1009,20 @@ function applyLink() {
   obj.overheight = $('#oloverheight').val();
 
   obj.via = parseInt($('#olviastyle').val());
-  obj.attach = [$('#olnode1c').val(), $('#olnode2c').val()]
+  var olnode1cVal = $('#olnode1c').val()
+  if (olnode1cVal === 'custom') {
+    olnode1cVal = [Number($('#olnode1cx').val()), Number($('#olnode1cy').val())];
+  } else {
+    olnode1cVal = $('#olnode1c').val();
+  }
+
+  var olnode2cVal = $('#olnode2c').val()
+  if (olnode2cVal === 'custom') {
+    olnode2cVal = [Number($('#olnode2cx').val()), Number($('#olnode2cy').val())];
+  } else {
+    olnode2cVal = $('#olnode2c').val();
+  }
+  obj.attach = [olnode1cVal, olnode2cVal]
 
   // Check & cleanup
   if (obj.duplex == '') delete obj.duplex;
@@ -1101,7 +1130,11 @@ function applyChanges() {
   obj.outcolor = $('#odoutcolor').val();
   obj.lbg = $('#odbcolor').val();
 
-  obj.loffset = $('#odlabeloff').val();
+  if ($('#odlabeloff').val() === 'custom') {
+    obj.loffset = [Number($('#odlabeloffx').val()), Number($('#odlabeloffy').val())];
+  } else {
+    obj.loffset = $('#odlabeloff').val();
+  }
   obj.font = $('#odlabfont').val();
   obj.notes = $('#odnotes').val();
 
@@ -1201,9 +1234,51 @@ function editLink() {
     $('#oloverheight').val(obj.overheight);
 
     if (obj.attach) {
-      $('#olnode1c').val(obj.attach[0]);
-      $('#olnode2c').val(obj.attach[1]);
+      // $('#olnode1c').val(obj.attach[0]);
+      if (Array.isArray(obj.attach[0])) {
+        $('#olnode1c').val('custom');
+        $('#olnode1ccustom').show();
+        $('#olnode1cx').val(obj.attach[0][0]);
+        $('#olnode1cy').val(obj.attach[0][1]);
+      } else {
+        $('#olnode1ccustom').hide();
+        $('#olnode1c').val(obj.attach[0]);
+      }
+
+
+      // $('#olnode2c').val(obj.attach[1]);
+      if (Array.isArray(obj.attach[1])) {
+        $('#olnode2c').val('custom');
+        $('#olnode2ccustom').show();
+        $('#olnode2cx').val(obj.attach[1][0]);
+        $('#olnode2cy').val(obj.attach[1][1]);
+      } else {
+        $('#olnode2ccustom').hide();
+        $('#olnode2c').val(obj.attach[1]);
+      }
+
+    } else {
+      $('#olnode1ccustom').hide();
+      $('#olnode2ccustom').hide();
     }
+    $('#olnode1c').change(function () {
+      var val = $('#olnode1c').val();
+      if (val === 'custom') {
+        $('#olnode1ccustom').show();
+      } else {
+        $('#olnode1ccustom').hide();
+      }
+
+    })
+    $('#olnode2c').change(function () {
+      var val = $('#olnode2c').val();
+      if (val === 'custom') {
+        $('#olnode2ccustom').show();
+      } else {
+        $('#olnode2ccustom').hide();
+      }
+
+    })
 
     fillFontSelect('#olbwlabelfont', obj.bwfont);
     fillTemplateSelect('#oltemplate', 'link', obj.template);
@@ -1534,8 +1609,8 @@ function getAttachPoint(side, pos, size) {
   if (!side) side = 'C';
 
   if (Array.isArray(side)) {
-    var x = pos[0] - width / 2
-    var y = pos[1] + height / 2
+    var x = pos[0]
+    var y = pos[1]
     var xoffset = Number(side[0])
     var yoffset = Number(side[1])
     return [x + xoffset, y + yoffset];
@@ -1959,8 +2034,13 @@ function getNodesText(data) {
     if (obj.data)
       result += "\tTARGET " + obj.data + "\n";
 
-    if (obj.loffset)
-      result += "\tLABELOFFSET " + obj.loffset + "\n";
+    if (obj.loffset) {
+      if (Array.isArray(obj.loffset)) {
+        result += "\tLABELOFFSET " + obj.loffset[0] + " " + obj.loffset[1] + "\n";
+      } else {
+        result += "\tLABELOFFSET " + obj.loffset + "\n";
+      }
+    }
 
     if (obj.langle)
       result += "\tLABELANGLE " + obj.langle + "\n";
@@ -2046,8 +2126,16 @@ function getLinksText(data) {
       result += "\tNODES ";
 
       if (obj.attach) {
-        result += obj.nodes[0] + ":" + ((obj.attach[0]) ? obj.attach[0] : '') + " ";
-        result += obj.nodes[1] + ":" + ((obj.attach[1]) ? obj.attach[1] : '') + "\n";
+        if (Array.isArray(obj.attach[0])) {
+          result += obj.nodes[0] + ":" + ((obj.attach[0]) ? obj.attach[0].join(':') : 'C') + " ";
+        } else {
+          result += obj.nodes[0] + ":" + ((obj.attach[0]) ? obj.attach[0] : 'C') + " ";
+        }
+        if (Array.isArray(obj.attach[1])) {
+          result += obj.nodes[1] + ":" + ((obj.attach[1]) ? obj.attach[1].join(':') : 'C') + "\n";
+        } else {
+          result += obj.nodes[1] + ":" + ((obj.attach[1]) ? obj.attach[1] : 'C') + "\n";
+        }
       } else
         result += obj.nodes[0] + " " + obj.nodes[1] + "\n";
     }
@@ -2378,7 +2466,7 @@ function importData(data) {
 
         case "LABELOFFSET":
           if (args.length > 0) {
-            compassPoints = ['C', 'NE', 'SE', 'NW', 'SW', 'N', 'S', 'E', 'W']
+            var compassPoints = ['C', 'NE', 'SE', 'NW', 'SW', 'N', 'S', 'E', 'W']
             if (compassPoints.includes(args[0])) {
               node.loffset = args.shift();
             } else {
