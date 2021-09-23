@@ -1757,7 +1757,7 @@ function reDraw() {
         dContext.lineWidth = 1;
         dContext.setLineDash([5, 3]);
       } else {
-        dContext.lineWidth = (obj.width) ? obj.width : 1;
+        dContext.lineWidth = (obj.width) ? obj.width : 7  ;
         dContext.strokeStyle = colors.link;
         dContext.setLineDash([]);
       }
