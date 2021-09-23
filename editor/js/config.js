@@ -14,21 +14,22 @@ var onlineMode = true;
 
 // Colors
 var colors = {
-	selected: "#AA3333",
-	grid: ["#F5F5F5", "#F5F5F5"],
-	link: "#CCCCCC",
-	stroke: "black",
-	text: "#000000",
-	textout: "#000000",
-	via: ["#E5E5E5", "#888888"]
-	};
+  selected: "#AA3333",
+  grid: ["#F5F5F5", "#F5F5F5"],
+  link: "#c1c1c0",// "#CCCCCC",
+  stroke: "black",
+  text: "#000000",
+  textout: "#000000",
+  via: ["#E5E5E5", "#888888"]
+};
 
 var fixedFonts = {
-	1: '6pt monospace',
-	2: '8pt monospace',
-	3: '10pt monospace',
-	4: '12pt monospace',
-	5: '14pt monospace'};
+  1: '6pt monospace',
+  2: '8pt monospace',
+  3: '10pt monospace',
+  4: '12pt monospace',
+  5: '14pt monospace'
+};
 
 var defFont = {title: 2, scale: 2, time: 2, node: 3};
 

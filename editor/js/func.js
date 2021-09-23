@@ -1770,7 +1770,7 @@ function reDraw() {
       dContext.stroke();
 
       if (onecurved) {
-        dContext.lineWidth = (obj.width) ? obj.width : 1;
+        dContext.lineWidth = (obj.width) ? obj.width : 7;
         dContext.strokeStyle = colors.link;
         dContext.setLineDash([]);
 
@@ -1787,7 +1787,7 @@ function reDraw() {
       for (i in pos)
         dContext.fillRect(pos[i][0] - viaSize[0] / 2, pos[i][1] - viaSize[1] / 2, viaSize[0], viaSize[1]);
     } else {
-      dContext.lineWidth = (obj.width) ? obj.width : 1;
+      dContext.lineWidth = (obj.width) ? obj.width : 7;
       dContext.strokeStyle = colors.link;
 
       dContext.beginPath();
@@ -2586,10 +2586,10 @@ function importData(data) {
           var node1A = node1.split(':');
           var node2A = node2.split(':');
 
-          link.nodes = [node1A[0], node2A[0]];
+          link.nodes = [node1A.shift(), node2A.shift()];
 
-          if (node1A[1] || node2A[1])
-            link.attach = [node1A[1], node2A[1]];
+          if (node1A[0] || node2A[0])
+            link.attach = [node1A.length > 1 ? node1A : node1A[0], node2A.length > 1 ? node2A : node2A[0]];
           break;
 
         default:
