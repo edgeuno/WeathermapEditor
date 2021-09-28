@@ -180,15 +180,15 @@ switch ($action) {
 
       }
     }
-    $list[] = array(17, "TestDevice/0000 Desc: Test", '.rrd:INOCTETS:OUTOCTETS', $base_url . 'graph.php?height=100&width=512&id=17&type=port_bits&legend=no', $base_url . 'graphs/type=port_bits/id=17/');
-    $list[] = array(17, "Device/0000 Desc: Test", '.rrd:INOCTETS:OUTOCTETS', $base_url . 'graph.php?height=100&width=512&id=17&type=port_bits&legend=no', $base_url . 'graphs/type=port_bits/id=17/');
-    $list[] = array(17, "Xavier/0000 Desc: Test", '.rrd:INOCTETS:OUTOCTETS', $base_url . 'graph.php?height=100&width=512&id=17&type=port_bits&legend=no', $base_url . 'graphs/type=port_bits/id=17/');
-    $list[] = array(17, "Testtin/0000 Desc: Test", '.rrd:INOCTETS:OUTOCTETS', $base_url . 'graph.php?height=100&width=512&id=17&type=port_bits&legend=no', $base_url . 'graphs/type=port_bits/id=17/');
-    $list[] = array(17, "humm/0000 Desc: Test", '.rrd:INOCTETS:OUTOCTETS', $base_url . 'graph.php?height=100&width=512&id=17&type=port_bits&legend=no', $base_url . 'graphs/type=port_bits/id=17/');
-    $list[] = array(17, "IdonkNow/0000 Desc: Test", '.rrd:INOCTETS:OUTOCTETS', $base_url . 'graph.php?height=100&width=512&id=17&type=port_bits&legend=no', $base_url . 'graphs/type=port_bits/id=17/');
-    $list[] = array(17, "nana/0000 Desc: Test", '.rrd:INOCTETS:OUTOCTETS', $base_url . 'graph.php?height=100&width=512&id=17&type=port_bits&legend=no', $base_url . 'graphs/type=port_bits/id=17/');
-    $list[] = array(17, "TestDevi9jkhce/0000 Desc: Test", '.rrd:INOCTETS:OUTOCTETS', $base_url . 'graph.php?height=100&width=512&id=17&type=port_bits&legend=no', $base_url . 'graphs/type=port_bits/id=17/');
-    $list[] = array(17, "jkghj/0000 Desc: Test", '.rrd:INOCTETS:OUTOCTETS', $base_url . 'graph.php?height=100&width=512&id=17&type=port_bits&legend=no', $base_url . 'graphs/type=port_bits/id=17/');
+//    $list[] = array(17, "TestDevice/0000 Desc: Test", '.rrd:INOCTETS:OUTOCTETS', $base_url . 'graph.php?height=100&width=512&id=17&type=port_bits&legend=no', $base_url . 'graphs/type=port_bits/id=17/');
+//    $list[] = array(17, "Device/0000 Desc: Test", '.rrd:INOCTETS:OUTOCTETS', $base_url . 'graph.php?height=100&width=512&id=17&type=port_bits&legend=no', $base_url . 'graphs/type=port_bits/id=17/');
+//    $list[] = array(17, "Xavier/0000 Desc: Test", '.rrd:INOCTETS:OUTOCTETS', $base_url . 'graph.php?height=100&width=512&id=17&type=port_bits&legend=no', $base_url . 'graphs/type=port_bits/id=17/');
+//    $list[] = array(17, "Testtin/0000 Desc: Test", '.rrd:INOCTETS:OUTOCTETS', $base_url . 'graph.php?height=100&width=512&id=17&type=port_bits&legend=no', $base_url . 'graphs/type=port_bits/id=17/');
+//    $list[] = array(17, "humm/0000 Desc: Test", '.rrd:INOCTETS:OUTOCTETS', $base_url . 'graph.php?height=100&width=512&id=17&type=port_bits&legend=no', $base_url . 'graphs/type=port_bits/id=17/');
+//    $list[] = array(17, "IdonkNow/0000 Desc: Test", '.rrd:INOCTETS:OUTOCTETS', $base_url . 'graph.php?height=100&width=512&id=17&type=port_bits&legend=no', $base_url . 'graphs/type=port_bits/id=17/');
+//    $list[] = array(17, "nana/0000 Desc: Test", '.rrd:INOCTETS:OUTOCTETS', $base_url . 'graph.php?height=100&width=512&id=17&type=port_bits&legend=no', $base_url . 'graphs/type=port_bits/id=17/');
+//    $list[] = array(17, "TestDevi9jkhce/0000 Desc: Test", '.rrd:INOCTETS:OUTOCTETS', $base_url . 'graph.php?height=100&width=512&id=17&type=port_bits&legend=no', $base_url . 'graphs/type=port_bits/id=17/');
+//    $list[] = array(17, "jkghj/0000 Desc: Test", '.rrd:INOCTETS:OUTOCTETS', $base_url . 'graph.php?height=100&width=512&id=17&type=port_bits&legend=no', $base_url . 'graphs/type=port_bits/id=17/');
     header('Content-Type: application/json');
     echo json_encode($list);
 
