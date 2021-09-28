@@ -112,11 +112,18 @@ switch ($action) {
   case 'dev':
     $filter = htmlentities(trim($_GET['filter']));
     require $librenms_base . '/includes/init.php';
-
-    if(!is_null($filter) && $filter !== ''){
-      $hosts = \App\Models\Device::where('hostname', 'like', "%$filter%")->get(['device_id AS id', 'hostname AS name', 'ip AS description','hardware AS d1']);
-    }else {
-      $hosts = \App\Models\Device::orderBy('hostname')->get(['device_id AS id', 'hostname AS name', 'ip AS description','hardware AS d1']);
+    $devId = null;
+    $isNumber = is_numeric($filter);
+//    echo 'is number: ' . ($isNumber ? 'True' : 'False') . ' \n';
+    if ($isNumber) {
+      $devId = intval($filter);
+      $hosts = \App\Models\Device::where('device_id', '=', $devId)->get(['device_id AS id', 'hostname AS name', 'ip AS description', 'hardware AS d1']);
+    } else {
+      if (!is_null($filter) && $filter !== '') {
+        $hosts = \App\Models\Device::where('hostname', 'like', "%$filter%")->get(['device_id AS id', 'hostname AS name', 'ip AS description', 'hardware AS d1']);
+      } else {
+        $hosts = \App\Models\Device::orderBy('hostname')->get(['device_id AS id', 'hostname AS name', 'ip AS description', 'hardware AS d1']);
+      }
     }
     $list = array();
     if ($hosts->isNotEmpty()) {
@@ -124,7 +131,7 @@ switch ($action) {
         $key = $host['id'];
         $name = $host['name'];
         $graphArray = update_source_step1($key);
-        $description = $host['description']?$hosts['description']:$hosts['d1'];
+        $description = !is_null($host['description']) ? $hosts['description'] : $hosts['d1'];
         $list[$key . ''] = array($description, $host['name'], $graphArray[0], $graphArray[1]);
       }
     }
@@ -135,21 +142,28 @@ switch ($action) {
 
   case 'data':
     $dev = intval(htmlentities(trim($_GET['dev'])));
+    $filter = htmlentities(trim($_GET['filter']));
 
     if (!$dev) return '';
     require $librenms_base . '/includes/init.php';
     $base_url = isset($config['base_url']) ? $config['base_url'] : '';
     $list = array();
     if ($dev != 0) {
-      $devices = \App\Models\Device::when($dev > 0, function ($query) use ($dev) {
-        $query->where('device_id', $dev);
-      })
-        ->with(['ports' => function ($query) use ($weathermap_config) {
-          $query->orderBy($weathermap_config['sort_if_by']);
-        }])
-        ->orderBy('hostname')
-        ->get();
-    }
+
+        $devices = \App\Models\Device::when($dev > 0, function ($query) use ($dev) {
+          $query->where('device_id', $dev);
+        })
+          ->with(['ports' => function ($query) use ($filter, $weathermap_config) {
+            if ($filter) {
+              $query->where('ifDescr', 'like', "%$filter%")
+              ->orWhere('ifAlias', 'like', "%$filter%");;
+            }
+            $query->orderBy($weathermap_config['sort_if_by']);
+          }])
+          ->orderBy('hostname')
+          ->get();
+      }
+
     $i = 0;
     if (!is_null($devices)) {
       foreach ($devices as $device) {
@@ -166,7 +180,15 @@ switch ($action) {
 
       }
     }
-
+    $list[] = array(17, "TestDevice/0000 Desc: Test", '.rrd:INOCTETS:OUTOCTETS', $base_url . 'graph.php?height=100&width=512&id=17&type=port_bits&legend=no', $base_url . 'graphs/type=port_bits/id=17/');
+    $list[] = array(17, "Device/0000 Desc: Test", '.rrd:INOCTETS:OUTOCTETS', $base_url . 'graph.php?height=100&width=512&id=17&type=port_bits&legend=no', $base_url . 'graphs/type=port_bits/id=17/');
+    $list[] = array(17, "Xavier/0000 Desc: Test", '.rrd:INOCTETS:OUTOCTETS', $base_url . 'graph.php?height=100&width=512&id=17&type=port_bits&legend=no', $base_url . 'graphs/type=port_bits/id=17/');
+    $list[] = array(17, "Testtin/0000 Desc: Test", '.rrd:INOCTETS:OUTOCTETS', $base_url . 'graph.php?height=100&width=512&id=17&type=port_bits&legend=no', $base_url . 'graphs/type=port_bits/id=17/');
+    $list[] = array(17, "humm/0000 Desc: Test", '.rrd:INOCTETS:OUTOCTETS', $base_url . 'graph.php?height=100&width=512&id=17&type=port_bits&legend=no', $base_url . 'graphs/type=port_bits/id=17/');
+    $list[] = array(17, "IdonkNow/0000 Desc: Test", '.rrd:INOCTETS:OUTOCTETS', $base_url . 'graph.php?height=100&width=512&id=17&type=port_bits&legend=no', $base_url . 'graphs/type=port_bits/id=17/');
+    $list[] = array(17, "nana/0000 Desc: Test", '.rrd:INOCTETS:OUTOCTETS', $base_url . 'graph.php?height=100&width=512&id=17&type=port_bits&legend=no', $base_url . 'graphs/type=port_bits/id=17/');
+    $list[] = array(17, "TestDevi9jkhce/0000 Desc: Test", '.rrd:INOCTETS:OUTOCTETS', $base_url . 'graph.php?height=100&width=512&id=17&type=port_bits&legend=no', $base_url . 'graphs/type=port_bits/id=17/');
+    $list[] = array(17, "jkghj/0000 Desc: Test", '.rrd:INOCTETS:OUTOCTETS', $base_url . 'graph.php?height=100&width=512&id=17&type=port_bits&legend=no', $base_url . 'graphs/type=port_bits/id=17/');
     header('Content-Type: application/json');
     echo json_encode($list);
 

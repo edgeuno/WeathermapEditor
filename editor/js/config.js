@@ -20,7 +20,7 @@ var colors = {
   stroke: "black",
   text: "#000000",
   textout: "#000000",
-  via: ["#E5E5E5", "#888888"]
+  via: ["#454545", "#888888"]
 };
 
 var fixedFonts = {

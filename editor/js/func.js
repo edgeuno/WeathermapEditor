@@ -46,6 +46,11 @@ var
   dragging = false;
 prevPoint = [0, 0];
 
+var opfilterList = null;
+
+// Generic containers
+var genericDrawContainer = {};
+
 /*
  * Map
  */
@@ -435,6 +440,11 @@ function selectPoint(x, y, reset) {
     sel = false;
   selectable = false;
 
+  genericDrawContainer['debug'] = {fn: 'fillText', args: [`Selected point (${x},${y})`, 10, 10]}
+  // dContext.fillText(`Selected point (${x},${y})`,
+  //   10,
+  //   10);
+
   if (reset)
     mapObj.selected = {};
 
@@ -522,6 +532,11 @@ function selectPoint(x, y, reset) {
 function selectImage(e) {
   var imglist = $("#odImages");
   $('#odimage').val(imglist.val());
+}
+
+function selectBgImage(e) {
+  var imglist = $("#mpbackgroundimages");
+  $('#mpbackground').val(imglist.val());
 }
 
 /*
@@ -726,10 +741,13 @@ function menuLink(mode) {
 
   if (nodes == 2) {
     var link = {
+      id: Date.now().toString(36) + Math.random().toString(36).substring(2),
       type: 'link',
       nodes:
-        [mapObj.objects[keys[0]].id,
-          mapObj.objects[keys[1]].id]
+        [
+          mapObj.objects[keys[0]].id,
+          mapObj.objects[keys[1]].id
+        ]
     }
 
     if (mode == 1) {
@@ -887,14 +905,19 @@ function menuEdit() {
         for (key in mapObj.objects) {
           if (mapObj.objects[key].type != 'link') continue;
 
+          var parser = (key, olist, node1, node2) => {
+            var from = mapObj.objects[getNodeById(mapObj.objects, mapObj.objects[key].nodes[node1])];
+            var to = mapObj.objects[getNodeById(mapObj.objects, mapObj.objects[key].nodes[node2])];
+            var message = `${from.title}(${mapObj.objects[key].nodes[node1]}) - ${to.title}(${mapObj.objects[key].nodes[node2]})`
+            olist.append($('<option value="' + key + '">' + message + '</option>'));
+          }
+
           if (mapObj.objects[key].nodes[0] == obj.id) {
-            o = mapObj.objects[getNodeById(mapObj.objects, mapObj.objects[key].nodes[1])];
-            olist.append($('<option value="' + key + '">' + o.title + ' (' + mapObj.objects[key].nodes[1] + ')</option>'));
+            parser(key, olist, 0, 1)
           }
 
           if (mapObj.objects[key].nodes[1] == obj.id) {
-            o = mapObj.objects[getNodeById(mapObj.objects, mapObj.objects[key].nodes[0])];
-            olist.append($('<option value="' + key + '">' + o.title + ' (' + mapObj.objects[key].nodes[0] + ')</option>'));
+            parser(key, olist, 1, 0)
           }
         }
       }
@@ -1407,27 +1430,27 @@ function enterData(obj) {
   }
 }
 
-function expandTab(e) {
-  var dev = this.getAttribute('data-hostid'), coll = this;
-
-  if (!$(coll).find('.list-group')) return;
-
-  $.getJSON('jsm.php', {a: "data", dev: dev},
+function expandTab(hostId, id, filter) {
+  $.getJSON('jsm.php', {a: "data", dev: hostId, filter},
     function (data) {
-      if (Object.keys(data).length == 0) {
-        content = 'Empty';
-      } else {
+      var content = 'Empty';
+      if (Object.keys(data).length > 0) {
         content = '<ul class="list-group small">';
 
         for (i in data) {
           var detail = data[i];
-          content += '<li class="list-group-item"><a href="#"  data-graph="' + detail[3] + '" data-details="' + detail[4] + '"  data-src="' + detail[0] + '" data-rra="' + detail[2] + '" onclick="enterData(this)">' + detail[1] + '</a></li>';
+          content += `
+                     <li class="list-group-item">
+                        <a href="#"  data-graph="${detail[3]}" data-details="${detail[4]}"  data-src="${detail[0]}" data-rra="${detail[2]}" onclick="enterData(this)">
+                            ${detail[1]}
+                        </a>
+                     </li>`;
         }
-
         content += '</ul>';
       }
 
-      $(coll).html(content);
+      $(`#content${id}`).html(content);
+
     });
 }
 
@@ -1437,12 +1460,15 @@ function selectHost(hostID, hover = '', info = '') {
   $(dialog.attr('data-data')).val(hostID);
   $(dialog.attr('data-hover')).val(hover);
   $(dialog.attr('data-info')).val(info);
+  $(dialog.attr('data-name')).val(`Node-${hostID}`);
 
   $(dialog.attr('data-caller')).modal('show');
+  $('#opfilter').val('')
 
   dialog
     .removeAttr('data-data')
     .removeAttr('data-caller')
+    .removeAttr('data-name')
     .modal('hide');
 }
 
@@ -1452,7 +1478,8 @@ function filterDevlist() {
   var listtype = $('#pickDialog').attr('data-type');
   var devlist = $('#devlist');
 
-  $.getJSON('jsm.php', {a: "dev", filter: filter},
+  var params = {a: "dev", filter: filter};
+  $.getJSON('jsm.php', params,
     function (data) {
       var dev, id = 1;
       content = '';
@@ -1465,14 +1492,53 @@ function filterDevlist() {
         content += '</ul>';
         devlist.html(content);
       } else {
-        for (i in data) {
-          content += '<div class="card"><div class="card-header" role="tab" id="heading' + id + '"><a class="mb-0" data-toggle="collapse" href="#collapse' + id + '" aria-expanded="true" aria-controls="collapse' + id + '">' + data[i][1] + '</a><span class="badge badge-secondary float-right">' + data[i][0] + '</span></div>' +
-            '<div id="collapse' + id + '" class="collapse" role="tabpanel" aria-labelledby="heading' + id + '" data-parent="#devlist" data-hostid="' + i + '"><div class="card-body">Loading...</div></div></div>';
+        // content += `<div className="form-group" id="opfilterListGroup" style = "display: none">
+        //     <label htmlFor="opfilterList">Filter</label>
+        //     <input type="text" className="form-control form-control-sm" id="opfilterList">
+        //   </div>`
+        for (let i in data) {
+
+          content += `
+            <div class="card">
+                <div class="card-header" role="tab" id="heading${id}">
+                    <a class="mb-0" data-toggle="collapse" href="#collapse${id}" aria-expanded="true" aria-controls="collapse${id}">
+                        ${data[i][1]}
+                    </a>
+                    <span class="badge badge-secondary float-right">
+                        ${data[i][0]}
+                    </span>
+                </div>
+
+                <div id="collapse${id}" class="collapse" role="tabpanel" aria-labelledby="heading${id}" data-parent="#devlist" data-hostid="${i}" data-dataId="${id}">
+                  <div className="form-group" id="opfilterListGroup${id}">
+                      <label htmlFor="opfilterList${id}">
+                          Filter
+                      </label>
+                      <input type="text" className="form-control form-control-sm" id="opfilterList${id}">
+                  </div>
+                    <div id="content${id}">
+                        Loading...
+                    </div>
+                </div>
+            </div>`;
+
           id++;
         }
 
+
         devlist.html(content);
-        $('.collapse').on('show.bs.collapse', expandTab);
+        $('.collapse').on('show.bs.collapse', (e) => {
+          let id = e.target.attributes['data-dataid'].value;
+          let hostId = e.target.attributes['data-hostid'].value;
+          $(`#opfilterList${id}`).val('');
+          $(`#opfilterList${id}`).keyup(() => {
+            setTimeout(() => {
+              expandTab(hostId, id, $(`#opfilterList${id}`).val())
+            }, 500);
+          });
+          // $(`#opfilterListGroup${id}`).show();
+          expandTab(hostId, id, '')
+        });
       }
     });
 }
@@ -1527,7 +1593,7 @@ function contextMenu(e) {
       // Check if nodes are linked
       if (hasLink(mapObj.objects[nodes[0]].id, mapObj.objects[nodes[1]].id)) {
         popup.find('.item-link').show();
-        popup.find('.item-unlink').show();
+        popup.find('.item-unlink').hide();
       } else {
         popup.find('.item-link').show();
         popup.find('.item-unlink').hide();
@@ -1717,6 +1783,18 @@ function drawBackground() {
   offImage = offContext.getImageData(0, 0, map_canvas.width, map_canvas.height);
 }
 
+function dualDashline(ctx, x0, y0, x1, y1) {
+  ctx.shadowColor = 'white';
+  ctx.shadowBlur = 2;
+  ctx.strokeStyle = 'black';
+  ctx.beginPath();
+  ctx.moveTo(x0, y0);
+  ctx.lineTo(x1, y1);
+  ctx.stroke();
+  ctx.stroke();
+  ctx.stroke();
+}
+
 function reDraw() {
   var i, j, via, onecurved, obj,
     objSize, coord1, oNode1, oNode2,
@@ -1754,20 +1832,23 @@ function reDraw() {
 
       if (onecurved) {
         dContext.strokeStyle = colors.via[0];
-        dContext.lineWidth = 1;
+        dContext.lineWidth = 1.5;
         dContext.setLineDash([5, 3]);
+        dualDashline(dContext, coord1[0], coord1[1], pos[0][0], pos[0][1])
+        dualDashline(dContext, pos[0][0], pos[0][1], coord2[0], coord2[1])
       } else {
-        dContext.lineWidth = (obj.width) ? obj.width : 7  ;
+        dContext.lineWidth = (obj.width) ? obj.width : 7;
         dContext.strokeStyle = colors.link;
         dContext.setLineDash([]);
+
+        dContext.beginPath();
+        dContext.moveTo(coord1[0], coord1[1]);
+        for (i in pos)
+          dContext.lineTo(pos[i][0], pos[i][1]);
+        dContext.lineTo(coord2[0], coord2[1]);
+        dContext.stroke();
       }
 
-      dContext.beginPath();
-      dContext.moveTo(coord1[0], coord1[1]);
-      for (i in pos)
-        dContext.lineTo(pos[i][0], pos[i][1]);
-      dContext.lineTo(coord2[0], coord2[1]);
-      dContext.stroke();
 
       if (onecurved) {
         dContext.lineWidth = (obj.width) ? obj.width : 7;
@@ -1921,6 +2002,13 @@ function reDraw() {
         break;
     }
   }
+
+  // for (let a in genericDrawContainer) {
+  //   var fn = genericDrawContainer[a]['fn'];
+  //   var args = genericDrawContainer[a]['args'];
+  //   var dFunction = dContext[fn];
+  //   dFunction(...args);
+  // }
 }
 
 function compileFonts() {
@@ -2972,7 +3060,10 @@ function pickData(type) {
       .attr('data-type', 'host')
       .attr('data-data', '#odcacti')
       .attr('data-info', '#odinfo')
-      .attr('data-hover', '#odhover');
+      .attr('data-hover', '#odhover')
+      .attr('data-name', '#odname');
+    $('#opfilter').val($('#odcacti').val());
+
     $('#editorNode').modal('hide');
   }
 
@@ -3220,6 +3311,13 @@ function cacheImageList() {
 
     for (let key of data)
       olist.append($('<option>' + key + '</option>'));
+
+    var olist1 = $("#mpbackgroundimages");
+    olist1.empty();
+    olist1.append($('<option value="">Select from list</option>'));
+
+    for (let key of data)
+      olist1.append($('<option>' + key + '</option>'));
   });
 }
 
@@ -3242,8 +3340,9 @@ function setHandlers() {
   $('#mapcanvas').mouseup(mouseUp);
   $('#mapcanvas').mousemove(mouseMove);
   $('#odImages').click(selectImage);
+  $('#mpbackgroundimages').click(selectBgImage);
 
-  $('#deleteLink').click(deleteLink);
+  // $('#deleteLink').click(deleteLink);
   $('#deleteMap').click(deleteMap);
   $('#deleteFont').click(deleteFont);
 
@@ -3262,7 +3361,7 @@ function setHandlers() {
 
   $('#maps').dblclick(loadMap);
   $('#odLinks').dblclick(editLink);
-  $('#deleteLink2').click(deleteLink);
+  // $('#deleteLink2').click(deleteLink);
   $('#deleteLink').click(deleteLinks);
   $('#clearVIA').click(clearVIA);
   $('#addTemplate').click(addTemplate);
@@ -3286,6 +3385,7 @@ function setHandlers() {
     $('#pickDialog').on('hide.bs.modal', function () {
       $($('#pickDialog').attr('data-caller')).modal('show');
     });
+
   }
 
   map_canvas.addEventListener('contextmenu', contextMenu, false);
