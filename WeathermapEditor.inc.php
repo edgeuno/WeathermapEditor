@@ -1,6 +1,6 @@
 <?php
 
-echo('Click <a href="plugins/WeathermapEditor/editor/editor.php">here to access the editor</a> where you can create and manage maps.');
+echo('Click <a href="plugins/WeathermapEditor/editor/editor.php">here to access the editor</a> where you can create and manage maps. -> <input type="button" onclick="location.href=\'plugins/WeathermapEditor/editor/editor.php\';" value="Go to the editor" />');
 $directory = 'plugins/Weathermap/output/';
 $images = glob($directory . "*.png");
 echo('<div class="container">
