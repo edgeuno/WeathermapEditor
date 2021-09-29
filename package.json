@@ -1,0 +1,26 @@
+{
+  "name": "weathermapeditor",
+  "version": "0.0.2",
+  "description": "Editor for weathermap",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "version": "auto-changelog -p -r github --commit-limit false && auto-changelog -p -r github --output HISTORY.md --template keepachangelog --commit-limit false && git add CHANGELOG.md && git add HISTORY.md"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/edgeuno/WeathermapEditor.git"
+  },
+  "keywords": [
+    "Weather",
+    "map",
+    "Weathermap",
+    "Editor",
+    "WeathermapEditor"
+  ],
+  "author": "Javier Alejandro Ruiz G",
+  "license": "GPL-3.0-or-later",
+  "devDependencies": {
+    "auto-changelog": "^2.3.0"
+  }
+}
