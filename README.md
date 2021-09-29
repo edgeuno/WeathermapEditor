@@ -13,7 +13,38 @@ Or
 ````
 $ git clone https://github.com/edgeuno/WeathermapEditor.git
 ````
+### Supports / features
 
+- Easy to drag&drop nodes movement
+- Templated nodes and links
+- Background color and image
+- Convert from and to WeatherMap format
+- Load and save to native WeatherMap configs
+- Editor for nodes, links, scales, fonts, templates, map properties
+- Links with VIA, multiple VIA and curved/angled styles
+- Gently handles unsupported tags (excepting templated objects)
+- All types of time objects: min/max/generated time
+- Display title
+- Grid contrasting to background
+- Snap to grid
+- Scales are drawn in classic style
+- Optionally can decrease redraw intense on movement
+- SET hidezero and hidepercent for scales
+- Import/export map
+- Templated view
+- multi link asociation
+![img.png](img.png)
+
+Editor is intended to present object position and links among nodes, custom fonts are not supported as they may be located at inaccessible location.
+
+Links with VIA positions are displayed as bezier line with movable control points. Multiple VIAs are displayed as polyline.
+
+![img_1.png](img_1.png)
+
+![img_2.png](img_2.png)
+
+
+*Last 2 images taken from 13hakta blog*
 ## Configuration
 
 Move into the WeathermapEditor/editor directory and make a copy of setup.inc.default.php named setup.inc.php. This file

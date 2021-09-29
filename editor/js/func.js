@@ -40,6 +40,8 @@ var map_initial = {
   rendered: []
 };
 
+var linkGlobalId = 0;
+
 // Drag helpers
 var
   offset,
@@ -741,7 +743,7 @@ function menuLink(mode) {
 
   if (nodes == 2) {
     var link = {
-      id: Date.now().toString(36) + Math.random().toString(36).substring(2),
+      id: linkGlobalId++,
       type: 'link',
       nodes:
         [
@@ -908,7 +910,7 @@ function menuEdit() {
           var parser = (key, olist, node1, node2) => {
             var from = mapObj.objects[getNodeById(mapObj.objects, mapObj.objects[key].nodes[node1])];
             var to = mapObj.objects[getNodeById(mapObj.objects, mapObj.objects[key].nodes[node2])];
-            var message = `${from.title}(${mapObj.objects[key].nodes[node1]}) - ${to.title}(${mapObj.objects[key].nodes[node2]})`
+            var message = `${from.title}(${mapObj.objects[key].nodes[node1]}) - ${to.title}(${mapObj.objects[key].nodes[node2]}) - id: ${mapObj.objects[key].id}`
             olist.append($('<option value="' + key + '">' + message + '</option>'));
           }
 
@@ -1724,11 +1726,12 @@ function applyTime() {
 
 function loadData(obj) {
   mapObj = $.extend(true, {}, map_initial, obj);
-
+  linkGlobalId = 0;
   setSize();
   drawBackground();
   compileFonts();
   render();
+  linkGlobalId = mapObj.rendered.filter(i=>i.type === 'link').length + 2;
   if (loadImages()) reDraw();
   $('#mapname').val(mapObj.name);
 }
