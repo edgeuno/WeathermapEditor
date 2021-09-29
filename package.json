@@ -1,6 +1,6 @@
 {
   "name": "weathermapeditor",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Editor for weathermap",
   "main": "index.js",
   "scripts": {
