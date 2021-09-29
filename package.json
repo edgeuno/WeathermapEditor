@@ -1,11 +1,11 @@
 {
   "name": "weathermapeditor",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Editor for weathermap",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "version": "auto-changelog --commit-limit false && auto-changelog --output HISTORY.md --template keepachangelog --commit-limit false && git add CHANGELOG.md && git add HISTORY.md"
+    "version": "auto-changelog -p -r github --commit-limit false && auto-changelog -p -r github --output HISTORY.md --template keepachangelog --commit-limit false && git add CHANGELOG.md && git add HISTORY.md"
   },
   "repository": {
     "type": "git",

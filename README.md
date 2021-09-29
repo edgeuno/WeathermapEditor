@@ -5,13 +5,13 @@ weather maps.
  To install use the following commands:
 
 ````
-  $ git clone ssh://git@gitlab.edgeuno.net:2288/developers/WeathermapEditor.git
+  $ git clone git@github.com:edgeuno/WeathermapEditor.git
 ````
 
 Or
 
 ````
-$ git clone https://gitlab.edgeuno.net/developers/WeathermapEditor.git
+$ git clone https://github.com/edgeuno/WeathermapEditor.git
 ````
 
 ## Configuration
