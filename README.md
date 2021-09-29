@@ -68,3 +68,13 @@ If changes were made then run ./build.sh to prepare distro.
 
 Vitaly Chekryzhev <13hakta@gmail.com>, 2017-2018
 https://13hakta.ru
+
+# Thanks
+
+- To Edgeuno for the support visit at https://edgeuno.com/
+- To 13hakta for the work visit at https://13hakta.ru
+
+# Links
+
+- Release blog post for the cacti plugin https://13hakta.ru/blog/wmap.html
+- Repository for the cacti plugin https://gitlab.com/13hakta/wmeditor
