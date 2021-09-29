@@ -1,7 +1,8 @@
 # Librenms Weathermap editor
 
-Librenms weather map editor is an adaptation for librenms of the plugin develop by Vitaly Chekryzhev for editing cacti
-weather maps for installing use the following via ssh:
+LibreNMS Weather map editor is an adaptation for LibreNMS of the plugin developed by Vitaly Chekryzhev for editing cacti
+weather maps.
+ To install use the following commands:
 
 ````
   $ git clone ssh://git@gitlab.edgeuno.net:2288/developers/WeathermapEditor.git
@@ -23,17 +24,17 @@ cd WeathermapEditor/editor
 sudo cp setup.inc.default.php setup.inc.php
 ```
 
-The following parameters are needed:
+The following parameters must be configured:
 
 - librenms_base
 - mapdir
 - imgdir
 
-As default is assume that the Weathermap plugin is installed
+It is assumed that the Weathermap plugin is already installed.
 
 ### librenms_base
 
-Real path for the librenms installation
+Real path for the LibreNMS installation
 
 ```injectablephp
 $librenms_base = realpath(dirname(__FILE__) . '/../../../../');
@@ -41,15 +42,15 @@ $librenms_base = realpath(dirname(__FILE__) . '/../../../../');
 
 ### mapdir
 
-Path for the directory where the map configuration files are going to be save
+Path for the directory where the map configuration files are going to be saved
 
 ```injectablephp
 $mapdir = $librenms_base . '/html/plugins/Weathermap/configs';
 ```
 
-### mapdir
+### imgdir
 
-Path for the directory where the map configuration files are going to be save
+Path for the directory where the images are going to be saved
 
 ```injectablephp
 $imgdir = $librenms_base . '/html/plugins/Weathermap/images';
@@ -71,8 +72,8 @@ https://13hakta.ru
 
 # Thanks
 
-- To Edgeuno for the support visit at https://edgeuno.com/
-- To 13hakta for the work visit at https://13hakta.ru
+- To Edgeuno for the support, visit at https://edgeuno.com/
+- To 13hakta for the work, visit at https://13hakta.ru
 
 # Links
 
