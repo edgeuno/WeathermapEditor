@@ -533,6 +533,8 @@ function selectPoint(x, y, reset) {
 function selectImage(e) {
   var imglist = $("#odImages");
   $('#odimage').val(imglist.val());
+  $('#imgWidth').val('')
+  $('#imgHeight').val('')
 }
 
 function selectBgImage(e) {
@@ -853,6 +855,8 @@ function menuEdit() {
       $('#odname').val(obj.id);
       $('#odtitle').val(obj.title);
       $('#odimage').val(obj.img);
+      $('#imgWidth').val(obj.imgSizeWidth)
+      $('#imgHeight').val(obj.imgSizeHeight)
       $('#odcacti').val(obj.cacti);
       $('#odtemplate').val(obj.template);
       $('#odcolor').val(obj.color);
@@ -1147,6 +1151,14 @@ function applyChanges() {
 
   obj.title = $('#odtitle').val();
   obj.img = $('#odimage').val();
+  const imgWidth = $('#imgWidth').val();
+  const imgHeight = $('#imgHeight').val();
+  if (imgWidth) {
+    obj.imgSizeWidth = imgWidth
+  }
+  if (imgHeight) {
+    obj.imgSizeHeight = imgHeight
+  }
   obj.cacti = $('#odcacti').val();
   obj.template = $('#odtemplate').val();
 
@@ -1893,11 +1905,16 @@ function reDraw() {
         hasImage = false;
 
         if (obj.img && imagesCache[obj.img] && imagesCache[obj.img].complete && imagesCache[obj.img].naturalHeight !== 0) {
-          if (obj.hasOwnProperty('imgSize')) {
+          if (obj.hasOwnProperty('imgSizeWidth') || obj.hasOwnProperty('imgSizeHeight')) {
+
+            const imgSizeWidth = obj.hasOwnProperty('imgSizeWidth') ? obj.imgSizeWidth : obj.imgSizeHeight
+            const imgSizeHeight = obj.hasOwnProperty('imgSizeHeight') ? obj.imgSizeHeight : obj.imgSizeWidth
+
             // keep the ratio for the images
             const ratio = (imagesCache[obj.img].width || 0) / ((imagesCache[obj.img].height === 0 ? 1 : imagesCache[obj.img].height) || 1)
-            const h = Number(obj.imgSize.w) / ((ratio === 0 ? 1 : ratio) || 1)
-            objSize = [obj.imgSize.w, h]
+
+            const h = Number(imgSizeWidth) / ((ratio === 0 ? 1 : ratio) || 1)
+            objSize = [imgSizeWidth, h]
           } else {
             objSize = [imagesCache[obj.img].width, imagesCache[obj.img].height];
           }
@@ -2123,8 +2140,15 @@ function getNodesText(data) {
     if (obj.template)
       result += "\tTEMPLATE " + obj.template + "\n";
 
-    if (obj.img)
-      result += "\tICON " + obj.img + "\n";
+    if (obj.img) {
+      if (obj.hasOwnProperty('imgSizeWidth') || obj.hasOwnProperty('imgSizeHeight')) {
+        const imgSizeWidth = obj.hasOwnProperty('imgSizeWidth') ? obj.imgSizeWidth : obj.imgSizeHeight
+        const imgSizeHeight = obj.hasOwnProperty('imgSizeHeight') ? obj.imgSizeHeight : obj.imgSizeWidth
+        result += "\tICON " + imgSizeWidth + " " + imgSizeHeight + " " + obj.img + "\n";
+      } else {
+        result += "\tICON " + obj.img + "\n";
+      }
+    }
 
     if (obj.title)
       result += "\tLABEL " + obj.title + "\n";
@@ -2519,7 +2543,8 @@ function importData(data) {
       switch (param) {
         case "ICON":
           if (args.length === 3) {
-            node.imgSize = {w: args[0], h: args[1]}
+            node.imgSizeWidth = args[0]
+            node.imgSizeHeight = args[1]
             node.img = args[2];
           } else {
             node.img = args.shift();
