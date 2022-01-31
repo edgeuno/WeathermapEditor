@@ -1731,7 +1731,7 @@ function loadData(obj) {
   drawBackground();
   compileFonts();
   render();
-  linkGlobalId = mapObj.rendered.filter(i=>i.type === 'link').length + 2;
+  linkGlobalId = mapObj.rendered.filter(i => i.type === 'link').length + 2;
   if (loadImages()) reDraw();
   $('#mapname').val(mapObj.name);
 }
@@ -1894,7 +1894,14 @@ function reDraw() {
         hasImage = false;
 
         if (obj.img && imagesCache[obj.img] && imagesCache[obj.img].complete && imagesCache[obj.img].naturalHeight !== 0) {
-          objSize = [imagesCache[obj.img].width, imagesCache[obj.img].height];
+          if (obj.hasOwnProperty('imgSize')) {
+            // keep the ratio for the images
+            const ratio = (imagesCache[obj.img].width || 0) / ((imagesCache[obj.img].height === 0 ? 1 : imagesCache[obj.img].height) || 1)
+            const h = Number(obj.imgSize.w) / ((ratio === 0 ? 1 : ratio) || 1)
+            objSize = [obj.imgSize.w, h]
+          } else {
+            objSize = [imagesCache[obj.img].width, imagesCache[obj.img].height];
+          }
           hasImage = true;
         } else
           objSize = nodeSize;
@@ -1903,7 +1910,11 @@ function reDraw() {
 
         // Node icon
         if (hasImage) {
-          dContext.drawImage(imagesCache[obj.img], pos[0] - objSize[0] / 2, pos[1] - objSize[1] / 2);
+          const img = imagesCache[obj.img]
+          const positionW = pos[0] - objSize[0] / 2
+          const positionH = pos[1] - objSize[1] / 2
+          dContext.drawImage(img, positionW, positionH, objSize[0], objSize[1]);
+          // dContext.drawImage(imagesCache[obj.img], pos[0] - objSize[0] / 2, pos[1] - objSize[1] / 2);
 
           if (mapObj.selected[i]) {
             dContext.strokeWidth = 1;
@@ -2508,7 +2519,12 @@ function importData(data) {
     if (isNode) {
       switch (param) {
         case "ICON":
-          node.img = args.shift();
+          if (args.length === 3) {
+            node.imgSize = {w: args[0], h: args[1]}
+            node.img = args[2];
+          } else {
+            node.img = args.shift();
+          }
           break;
 
         case "POSITION":
