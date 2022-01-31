@@ -272,31 +272,30 @@ function loadImages() {
   // Cache node icons
   for (var i in objs) {
     var obj = objs[i];
+    // if (obj.type == "node") {
+    if (obj.img && !imagesCache[obj.img]) {
+      image = new Image();
+      image.setAttribute('data-idx', i);
 
-    if (obj.type == "node") {
-      if (obj.img && !imagesCache[obj.img]) {
-        image = new Image();
-        image.setAttribute('data-idx', i);
+      image.onerror = function () {
+        var obj = objs[image.getAttribute('data-idx')];
+        console.error('Can\'t load:', obj.img);
 
-        image.onerror = function () {
-          var obj = objs[image.getAttribute('data-idx')];
-          console.error('Can\'t load:', obj.img);
+        delete imagesCache[obj.img];
 
-          delete imagesCache[obj.img];
+        if (--remainImages == 0) reDraw();
+      };
 
-          if (--remainImages == 0) reDraw();
-        };
+      image.onload = function () {
+        if (--remainImages == 0) reDraw();
+      };
 
-        image.onload = function () {
-          if (--remainImages == 0) reDraw();
-        };
+      image.src = imagesUrl + obj.img;
+      remainImages++;
 
-        image.src = imagesUrl + obj.img;
-        remainImages++;
-
-        imagesCache[obj.img] = image;
-      }
+      imagesCache[obj.img] = image;
     }
+    // }
   }
 
   return (remainImages == 0);
