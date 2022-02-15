@@ -272,31 +272,30 @@ function loadImages() {
   // Cache node icons
   for (var i in objs) {
     var obj = objs[i];
+    // if (obj.type == "node") {
+    if (obj.img && !imagesCache[obj.img]) {
+      image = new Image();
+      image.setAttribute('data-idx', i);
 
-    if (obj.type == "node") {
-      if (obj.img && !imagesCache[obj.img]) {
-        image = new Image();
-        image.setAttribute('data-idx', i);
+      image.onerror = function () {
+        var obj = objs[image.getAttribute('data-idx')];
+        console.error('Can\'t load:', obj.img);
 
-        image.onerror = function () {
-          var obj = objs[image.getAttribute('data-idx')];
-          console.error('Can\'t load:', obj.img);
+        delete imagesCache[obj.img];
 
-          delete imagesCache[obj.img];
+        if (--remainImages == 0) reDraw();
+      };
 
-          if (--remainImages == 0) reDraw();
-        };
+      image.onload = function () {
+        if (--remainImages == 0) reDraw();
+      };
 
-        image.onload = function () {
-          if (--remainImages == 0) reDraw();
-        };
+      image.src = imagesUrl + obj.img;
+      remainImages++;
 
-        image.src = imagesUrl + obj.img;
-        remainImages++;
-
-        imagesCache[obj.img] = image;
-      }
+      imagesCache[obj.img] = image;
     }
+    // }
   }
 
   return (remainImages == 0);
@@ -534,6 +533,8 @@ function selectPoint(x, y, reset) {
 function selectImage(e) {
   var imglist = $("#odImages");
   $('#odimage').val(imglist.val());
+  $('#imgWidth').val('')
+  $('#imgHeight').val('')
 }
 
 function selectBgImage(e) {
@@ -854,6 +855,8 @@ function menuEdit() {
       $('#odname').val(obj.id);
       $('#odtitle').val(obj.title);
       $('#odimage').val(obj.img);
+      $('#imgWidth').val(obj.imgSizeWidth)
+      $('#imgHeight').val(obj.imgSizeHeight)
       $('#odcacti').val(obj.cacti);
       $('#odtemplate').val(obj.template);
       $('#odcolor').val(obj.color);
@@ -1148,6 +1151,14 @@ function applyChanges() {
 
   obj.title = $('#odtitle').val();
   obj.img = $('#odimage').val();
+  const imgWidth = $('#imgWidth').val();
+  const imgHeight = $('#imgHeight').val();
+  if (imgWidth) {
+    obj.imgSizeWidth = imgWidth
+  }
+  if (imgHeight) {
+    obj.imgSizeHeight = imgHeight
+  }
   obj.cacti = $('#odcacti').val();
   obj.template = $('#odtemplate').val();
 
@@ -1731,7 +1742,7 @@ function loadData(obj) {
   drawBackground();
   compileFonts();
   render();
-  linkGlobalId = mapObj.rendered.filter(i=>i.type === 'link').length + 2;
+  linkGlobalId = mapObj.rendered.filter(i => i.type === 'link').length + 2;
   if (loadImages()) reDraw();
   $('#mapname').val(mapObj.name);
 }
@@ -1894,7 +1905,19 @@ function reDraw() {
         hasImage = false;
 
         if (obj.img && imagesCache[obj.img] && imagesCache[obj.img].complete && imagesCache[obj.img].naturalHeight !== 0) {
-          objSize = [imagesCache[obj.img].width, imagesCache[obj.img].height];
+          if (obj.hasOwnProperty('imgSizeWidth') || obj.hasOwnProperty('imgSizeHeight')) {
+
+            const imgSizeWidth = obj.hasOwnProperty('imgSizeWidth') ? obj.imgSizeWidth : obj.imgSizeHeight
+            const imgSizeHeight = obj.hasOwnProperty('imgSizeHeight') ? obj.imgSizeHeight : obj.imgSizeWidth
+
+            // keep the ratio for the images
+            const ratio = (imagesCache[obj.img].width || 0) / ((imagesCache[obj.img].height === 0 ? 1 : imagesCache[obj.img].height) || 1)
+
+            const h = Number(imgSizeWidth) / ((ratio === 0 ? 1 : ratio) || 1)
+            objSize = [imgSizeWidth, h]
+          } else {
+            objSize = [imagesCache[obj.img].width, imagesCache[obj.img].height];
+          }
           hasImage = true;
         } else
           objSize = nodeSize;
@@ -1903,7 +1926,11 @@ function reDraw() {
 
         // Node icon
         if (hasImage) {
-          dContext.drawImage(imagesCache[obj.img], pos[0] - objSize[0] / 2, pos[1] - objSize[1] / 2);
+          const img = imagesCache[obj.img]
+          const positionW = pos[0] - objSize[0] / 2
+          const positionH = pos[1] - objSize[1] / 2
+          dContext.drawImage(img, positionW, positionH, objSize[0], objSize[1]);
+          // dContext.drawImage(imagesCache[obj.img], pos[0] - objSize[0] / 2, pos[1] - objSize[1] / 2);
 
           if (mapObj.selected[i]) {
             dContext.strokeWidth = 1;
@@ -2113,8 +2140,15 @@ function getNodesText(data) {
     if (obj.template)
       result += "\tTEMPLATE " + obj.template + "\n";
 
-    if (obj.img)
-      result += "\tICON " + obj.img + "\n";
+    if (obj.img) {
+      if (obj.hasOwnProperty('imgSizeWidth') || obj.hasOwnProperty('imgSizeHeight')) {
+        const imgSizeWidth = obj.hasOwnProperty('imgSizeWidth') ? obj.imgSizeWidth : obj.imgSizeHeight
+        const imgSizeHeight = obj.hasOwnProperty('imgSizeHeight') ? obj.imgSizeHeight : obj.imgSizeWidth
+        result += "\tICON " + imgSizeWidth + " " + imgSizeHeight + " " + obj.img + "\n";
+      } else {
+        result += "\tICON " + obj.img + "\n";
+      }
+    }
 
     if (obj.title)
       result += "\tLABEL " + obj.title + "\n";
@@ -2508,7 +2542,13 @@ function importData(data) {
     if (isNode) {
       switch (param) {
         case "ICON":
-          node.img = args.shift();
+          if (args.length === 3) {
+            node.imgSizeWidth = args[0]
+            node.imgSizeHeight = args[1]
+            node.img = args[2];
+          } else {
+            node.img = args.shift();
+          }
           break;
 
         case "POSITION":
